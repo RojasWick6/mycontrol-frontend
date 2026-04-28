@@ -1,0 +1,168 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+
+body{
+
+background:linear-gradient(135deg,#f57c00,#ff9800);
+
+min-height:100vh;
+
+
+}
+
+
+
+.logo{
+
+width:90px;
+margin-bottom:15px;
+
+}
+
+h1{
+
+font-size:32px;
+color:var(--text);
+
+}
+
+h1 span{
+
+color:var(--primary);
+
+}
+
+.subtitle{
+
+color:var(--text-light);
+
+}
+
+button{
+
+cursor:pointer;
+
+transition:.25s ease;
+
+}
+
+/* MENU LINKS */
+
+.menu-item{
+display:flex;
+align-items:center;
+gap:10px;
+
+padding:12px 16px;
+
+border-radius:10px;
+
+text-decoration:none;   /* QUITA EL SUBRAYADO */
+color:#333;
+
+font-weight:500;
+
+transition:all .2s ease;
+}
+
+/* hover */
+
+.menu-item:hover {
+    background: var(--primary, #FF8500);
+    color: white;
+}
+
+/* activo */
+
+.menu-item.active{
+background:var(--primary);
+color:white;
+}
+
+.dashboard-layout{
+display:flex;
+min-height:100vh;
+}
+
+.sidebar{
+
+width:240px;
+background:white;
+
+border-right:1px solid #eee;
+
+padding:20px;
+
+display:flex;
+flex-direction:column;
+
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        width: 240px;
+        background: white;
+        z-index: 1000;
+        transition: left .3s ease;
+        box-shadow: none;
+    }
+
+    .sidebar.active {
+        left: 0;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+    }
+
+    .main-content {
+        width: 100%;
+        min-width: 0;
+        padding: 16px;
+    }
+
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary, #FF8500);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 901px) {
+    .menu-toggle {
+        display: none;
+    }
+}
+
+/* OVERLAY */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}

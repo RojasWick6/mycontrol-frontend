@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-card">
+
+        <img src="assets/img/logo.png" class="logo">
+        <h1>MY <span>CONTROL</span></h1>
+        <p class="subtitle">Acceso al sistema</p>
+
+        <div id="errorMsg" style="
+            display:none;
+            background:#fdecea;
+            color:#c0392b;
+            padding:10px 14px;
+            border-radius:8px;
+            margin-bottom:14px;
+            font-size:14px;
+            text-align:left;
+        "></div>
+
+        <form id="loginForm">
+            <input type="email" placeholder="Correo electrónico" id="email" required>
+            <input type="password" placeholder="Contraseña" id="password" required>
+            <button class="login-btn" id="btnLogin">Ingresar</button>
+        </form>
+
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

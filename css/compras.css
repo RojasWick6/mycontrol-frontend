@@ -1,0 +1,102 @@
+.ventas-container{
+    display: flex;
+    gap: 25px;
+    margin-top: 25px;
+}
+
+/* CAJA IZQUIERDA */
+
+.venta-box{
+    flex: 2;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* INPUTS */
+
+.venta-box input{
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.venta-box input:focus{
+    border-color: orange;
+}
+
+/* RESULTADOS */
+
+.resultados{
+    background: #fafafa;
+    border-radius: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+}
+
+.resultado-item{
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.resultado-item:hover{
+    background: #f0f0f0;
+}
+
+/* CAJA DERECHA */
+
+.resumen-box{
+    flex: 1;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.resumen-box h3{
+    margin-bottom: 10px;
+    color: #555;
+}
+
+#totalUnidades{
+    font-size: 40px;
+    font-weight: bold;
+    color: orange;
+}
+
+/* BOTÓN */
+
+/* BOTÓN REGISTRAR COMPRA */
+#btnRegistrarCompra {
+    width: 100%;
+    background: #FF8500;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+}
+
+#btnRegistrarCompra:hover {
+    background: #e07600;
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 133, 0, 0.35);
+}
+
+#btnRegistrarCompra:active {
+    transform: scale(0.98);
+}

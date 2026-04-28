@@ -1,0 +1,158 @@
+/* --- HEADER DEL HISTORIAL --- */
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* BOTÓN REGRESAR */
+.btn-regresar {
+    text-decoration: none;
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-regresar:hover {
+    color: #FF8500;
+    transform: translateX(-5px); /* Efecto de flecha hacia atrás */
+}
+
+/* BUSCADOR DE HISTORIAL */
+#filtroHistorial {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    width: 250px;
+}
+
+#filtroHistorial:focus {
+    border-color: #FF8500;
+}
+
+/* --- CONTENEDOR DE TABLA --- */
+.table-container {
+    background: white;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.ventas-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ventas-table th {
+    background: #fdfdfd;
+    padding: 16px;
+    text-align: left;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    border-bottom: 2px solid #f4f4f4;
+}
+
+.ventas-table td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f1f1;
+    color: #444;
+    font-size: 0.95rem;
+}
+
+.ventas-table tr:last-child td {
+    border-bottom: none;
+}
+
+.ventas-table tr:hover {
+    background: #fffaf5; /* Un toque naranja muy suave al pasar el mouse */
+}
+
+/* ESTILOS ESPECÍFICOS */
+.text-right {
+    text-align: right;
+}
+
+.metodo-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #eee;
+    text-transform: capitalize;
+}
+
+/* Botón de ver detalle (opcional por si quieres agregar luego) */
+.btn-detalle {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-detalle:hover {
+    border-color: #FF8500;
+    color: #FF8500;
+}
+
+/* --- RESPONSIVO PARA HISTORIAL --- */
+
+@media (max-width: 850px) {
+    .historial-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-tools {
+        width: 100%;
+    }
+
+    #filtroHistorial {
+        width: 100%; /* El buscador ocupa todo el ancho en tablets/celulares */
+    }
+}
+
+@media (max-width: 600px) {
+    .main-content {
+        padding: 15px;
+    }
+
+    /* Hacemos que la tabla tenga scroll horizontal para que no rompa el diseño */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+    }
+
+    .ventas-table th, 
+    .ventas-table td {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+        white-space: nowrap; /* Evita que el texto se amontone en varias líneas */
+    }
+
+    .header-left h1 {
+        font-size: 1.5rem;
+    }
+    
+    .btn-regresar {
+        font-size: 0.8rem;
+    }
+}

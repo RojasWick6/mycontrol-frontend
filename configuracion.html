@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/inventario.css">
+    <link rel="stylesheet" href="css/configuracion.css">
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="dashboard-layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item active" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1>Configuración</h1>
+        </header>
+
+        <div class="config-grid">
+
+            <!-- DATOS DE LA EMPRESA -->
+            <div class="config-card">
+                <h2>🏢 Datos de la empresa</h2>
+                <div class="config-form">
+                    <label>Nombre de la empresa</label>
+                    <input type="text" id="empNombre" placeholder="Nombre">
+                    <label>Teléfono</label>
+                    <input type="text" id="empTelefono" placeholder="Teléfono">
+                    <label>Email</label>
+                    <input type="email" id="empEmail" placeholder="Email">
+                    <button id="btnGuardarEmpresa">Guardar cambios</button>
+                </div>
+            </div>
+
+            <!-- APARIENCIA -->
+            <div class="config-card">
+                <h2>🎨 Apariencia</h2>
+                <div class="config-form">
+                    <label>Color primario</label>
+                    <div class="color-row">
+                        <input type="color" id="colorPrimario" value="#FF8500">
+                        <span id="colorPrimarioHex">#FF8500</span>
+                    </div>
+                    <label>Color secundario</label>
+                    <div class="color-row">
+                        <input type="color" id="colorSecundario" value="#ff9800">
+                        <span id="colorSecundarioHex">#ff9800</span>
+                    </div>
+                    <label>Umbral de stock bajo</label>
+                    <div class="umbral-row">
+                        <input type="number" id="umbralStock" min="1" max="100" value="5">
+                        <span>unidades</span>
+                    </div>
+                    <button id="btnGuardarApariencia">Guardar apariencia</button>
+                    <button id="btnResetApariencia" class="btn-secondary">Restablecer</button>
+                </div>
+            </div>
+
+            <!-- USUARIOS -->
+            <div class="config-card config-card-full">
+                <div class="config-card-header">
+                    <h2>👥 Usuarios</h2>
+                    <button id="btnNuevoUsuario">+ Nuevo usuario</button>
+                </div>
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Fecha registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usuariosList"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- MODAL USUARIO -->
+<div class="modal" id="usuarioModal">
+    <div class="modal-content">
+        <h2 id="modalUsuarioTitulo">Nuevo usuario</h2>
+        <input type="text" id="uNombre" placeholder="Nombre completo">
+        <input type="email" id="uEmail" placeholder="Email">
+        <input type="password" id="uPassword" placeholder="Contraseña">
+        <select id="uRol">
+            <option value="admin">Admin</option>
+            <option value="vendedor">Vendedor</option>
+        </select>
+        <button id="btnGuardarUsuario">Guardar</button>
+        <button id="btnCerrarUsuario" style="background:#aaa; margin-top:8px">Cancelar</button>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/configuracion.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>

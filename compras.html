@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compras | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/ventas.css">
+    <link rel="stylesheet" href="css/compras.css">
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="dashboard-layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item active" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <div class="ventas-header">
+                <h1>Nueva <span>Compra</span></h1>
+            </div>
+        </header>
+
+        <section class="ventas-layout">
+
+            <div class="ventas-productos">
+
+                <!-- Proveedor -->
+                <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center">
+                    <select id="selectProveedor" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ddd">
+                        <option value="">-- Selecciona proveedor --</option>
+                    </select>
+                    <button id="btnNuevoProveedor" class="btn-historial">+ Nuevo</button>
+                </div>
+
+                <!-- Buscador -->
+                <input type="text" id="buscarProducto"
+                    placeholder="Buscar producto por nombre o código"/>
+                <ul id="sugerencias"></ul>
+
+                <!-- Tabla carrito -->
+                <h2 class="carrito-title">Productos a comprar</h2>
+                <table class="carrito-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio compra</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="carritoList"></tbody>
+                </table>
+            </div>
+
+            <div class="ventas-resumen">
+                <h2>Total</h2>
+                <p class="total">$<span id="totalCompra">0.00</span></p>
+                <button id="btnRegistrarCompra">Registrar Compra</button>
+            </div>
+
+        </section>
+    </main>
+</div>
+
+<!-- MODAL NUEVO PROVEEDOR -->
+<div id="modalProveedor" style="display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.5); z-index:999;
+    align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:32px; border-radius:12px;
+        width:340px; max-width:90%">
+        <h2 style="margin-top:0">Nuevo proveedor</h2>
+        <form id="formProveedor">
+            <input type="text" id="provNombre" placeholder="Nombre *"
+                style="width:100%; margin-bottom:10px; padding:8px; border-radius:6px; border:1px solid #ddd">
+            <input type="text" id="provTelefono" placeholder="Teléfono"
+                style="width:100%; margin-bottom:10px; padding:8px; border-radius:6px; border:1px solid #ddd">
+            <input type="email" id="provEmail" placeholder="Email"
+                style="width:100%; margin-bottom:16px; padding:8px; border-radius:6px; border:1px solid #ddd">
+            <div style="display:flex; gap:8px">
+                <button type="submit" style="flex:1">Guardar</button>
+                <button type="button" id="cerrarModal" style="flex:1">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/compras.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>

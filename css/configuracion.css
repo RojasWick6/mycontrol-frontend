@@ -1,0 +1,185 @@
+.config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 25px;
+}
+
+.config-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.config-card h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.config-card-full {
+    grid-column: 1 / -1;
+}
+
+.config-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.config-form label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.config-form input,
+.config-form select {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.config-form input:focus {
+    border-color: var(--primary, #FF8500);
+}
+
+.config-form button {
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    background: var(--primary, #FF8500);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+.config-form button:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background: #f0f0f0 !important;
+    color: #555 !important;
+}
+
+.color-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.color-row input[type="color"] {
+    width: 48px;
+    height: 40px;
+    padding: 2px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.color-row span {
+    font-size: 13px;
+    color: #666;
+    font-family: monospace;
+}
+
+.umbral-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.umbral-row input {
+    width: 80px;
+}
+
+.umbral-row span {
+    font-size: 13px;
+    color: #666;
+}
+
+.badge-rol {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-rol.admin {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.badge-rol.vendedor {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+@media (max-width: 900px) {
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .config-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .config-card {
+        padding: 16px;
+    }
+
+    .config-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .config-card-header button {
+        width: 100%;
+    }
+
+    /* Tabla usuarios scrolleable */
+    .product-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        font-size: 13px;
+    }
+
+    .product-table th,
+    .product-table td {
+        white-space: nowrap;
+        padding: 8px 10px;
+    }
+
+    .modal-content {
+        width: 92%;
+        padding: 20px;
+    }
+
+    .modal-content input,
+    .modal-content select {
+        font-size: 16px;
+    }
+
+    .color-row input[type="color"] {
+        width: 42px;
+        height: 36px;
+    }
+}

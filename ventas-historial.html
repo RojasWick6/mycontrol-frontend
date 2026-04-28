@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Historial de Ventas</title>
+
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/ventas-historial.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+
+<div class="dashboard-layout">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+<div class="sidebar-header">
+<img src="assets/img/logo.png" class="logo" alt="logo">
+<h2>MyControl</h2>
+</div>
+
+<nav class="menu">
+
+<a class="menu-item" href="dashboard.html">
+<span class="icon">🏠</span>
+<span class="text">Inicio</span>
+</a>
+
+<a class="menu-item" href="inventario.html">
+<span class="icon">📦</span>
+<span class="text">Inventario</span>
+</a>
+
+<a class="menu-item active" href="ventas.html">
+<span class="icon">💰</span>
+<span class="text">Ventas</span>
+</a>
+
+<a class="menu-item" href="compras.html">
+<span class="icon">🧾</span>
+<span class="text">Compras</span>
+</a>
+
+<a class="menu-item" href="proveedores.html">
+<span class="icon">👥</span>
+<span class="text">Proveedores</span>
+</a>
+
+<a class="menu-item" href="reportes.html">
+<span class="icon">📊</span>
+<span class="text">Reportes</span>
+</a>
+
+<a class="menu-item" href="configuracion.html">
+<span class="icon">⚙</span>
+<span class="text">Configuración</span>
+</a>
+
+</nav>
+
+</aside>
+
+<!-- CONTENIDO -->
+
+<main class="main-content">
+    <div class="historial-header">
+        <div class="header-left">
+            <a href="ventas.html" class="btn-regresar">
+                <span>←</span> Volver a Ventas
+            </a>
+            <h1>Historial de <span>Ventas</span></h1>
+        </div>
+        
+        <div class="header-tools">
+            <input type="text" id="filtroHistorial" placeholder="Buscar por ID o fecha...">
+        </div>
+    </div>
+
+    <section class="table-container">
+        <table class="ventas-table">
+            <thead>
+                <tr>
+                    <th>ID Transacción</th>
+                    <th>Fecha y Hora</th>
+                    <th>Método de Pago</th>
+                    <th class="text-right">Total Facturado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="ventasList">
+                </tbody>
+        </table>
+    </section>
+</main>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/ventas-historial.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>

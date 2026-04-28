@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item active" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1>Bienvenido a <span>MyControl</span></h1>
+        </header>
+
+        <!-- TARJETAS -->
+        <section class="cards">
+            <div class="card">
+                <h3>Inventario total</h3>
+                <p class="metric" id="inventarioTotal">0</p>
+                <span>Unidades en stock</span>
+            </div>
+            <div class="card">
+                <h3>Ventas del día</h3>
+                <p class="metric" id="ventasHoy">$0.00</p>
+                <span>Ingresos de hoy</span>
+            </div>
+            <div class="card">
+                <h3>Productos registrados</h3>
+                <p class="metric" id="productosTotal">0</p>
+                <span>Artículos en sistema</span>
+            </div>
+        </section>
+
+        <!-- GRÁFICA + ACTIVIDAD -->
+        <section class="dashboard-grid">
+
+            <div class="dash-box">
+                <h2>Ventas esta semana</h2>
+                <div style="position:relative; height:220px">
+                    <canvas id="graficaSemana"></canvas>
+                </div>
+            </div>
+
+            <div class="dash-box">
+                <h2>Actividad reciente</h2>
+                <div id="actividadReciente"></div>
+            </div>
+
+        </section>
+
+    </main>
+</div>
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

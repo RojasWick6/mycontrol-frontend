@@ -1,0 +1,445 @@
+/* CONTENIDO PRINCIPAL */
+
+.main-content{
+
+flex:1;
+
+padding:30px;
+
+}
+
+/* LAYOUT GENERAL */
+
+.ventas-layout{
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:25px;
+
+margin-top:25px;
+
+}
+
+/* PRODUCTOS */
+
+.ventas-productos{
+
+background:white;
+
+padding:25px;
+
+border-radius:12px;
+
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+
+}
+
+/* BUSCADOR */
+
+#buscarProducto{
+
+width:100%;
+
+padding:12px;
+
+border-radius:8px;
+
+border:1px solid #ddd;
+
+margin-bottom:10px;
+
+font-size:15px;
+
+}
+
+/* SUGERENCIAS */
+
+#sugerencias{
+
+list-style:none;
+
+padding:0;
+
+margin-bottom:15px;
+
+border:1px solid #eee;
+
+border-radius:8px;
+
+max-height:150px;
+
+overflow-y:auto;
+
+}
+
+#sugerencias li{
+
+padding:10px;
+
+cursor:pointer;
+
+border-bottom:1px solid #f3f3f3;
+
+}
+
+#sugerencias li:hover{
+
+background:#f5f5f5;
+
+}
+
+/* TITULO CARRITO */
+
+.carrito-title{
+
+margin-top:15px;
+
+margin-bottom:10px;
+
+}
+
+/* TABLA CARRITO */
+
+.carrito-table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+.carrito-table th{
+
+text-align:left;
+
+padding:10px;
+
+border-bottom:2px solid #eee;
+
+font-size:14px;
+
+}
+
+.carrito-table td{
+
+padding:10px;
+
+border-bottom:1px solid #eee;
+
+font-size:14px;
+
+}
+
+/* BOTON ELIMINAR */
+
+.carrito-table button{
+
+background:#e74c3c;
+
+border:none;
+
+color:white;
+
+padding:5px 8px;
+
+border-radius:6px;
+
+cursor:pointer;
+
+}
+
+.carrito-table button:hover{
+
+background:#c0392b;
+
+}
+
+/* PANEL DERECHO */
+
+.ventas-resumen{
+
+background:white;
+
+padding:25px;
+
+border-radius:12px;
+
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+
+height:fit-content;
+
+display:flex;
+
+flex-direction:column;
+
+gap:15px;
+
+}
+
+/* TOTAL */
+
+.total{
+
+font-size:36px;
+
+font-weight:bold;
+
+color:#2ecc71;
+
+}
+
+/* METODO PAGO */
+
+#metodoPago{
+
+padding:10px;
+
+border-radius:8px;
+
+border:1px solid #ddd;
+
+}
+
+/* BOTON VENDER */
+
+#registrarVenta{
+
+background:#2ecc71;
+
+color:white;
+
+border:none;
+
+padding:14px;
+
+border-radius:8px;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+#registrarVenta:hover{
+
+background:#27ae60;
+
+}
+/* RESPONSIVE */
+
+@media (max-width:900px){
+
+.ventas-layout{
+
+grid-template-columns:1fr;
+
+}
+
+.ventas-resumen{
+
+order:-1;
+
+}
+
+}
+
+@media (max-width:600px){
+
+.carrito-table th,
+.carrito-table td{
+
+font-size:13px;
+
+padding:8px;
+
+}
+
+.total{
+
+font-size:32px;
+
+}
+
+}
+
+@media (max-width:900px){
+
+.main-content{
+
+padding:20px;
+
+}
+
+}
+
+@media (max-width:600px){
+
+#buscarProducto{
+
+font-size:14px;
+
+padding:10px;
+
+}
+
+}
+
+/* --- MEJORA DEL HEADER Y BOTÓN HISTORIAL --- */
+.ventas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Asegura que ocupe todo el ancho en el topbar */
+}
+
+.btn-historial {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 8px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #FF8500; 
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: 2px solid #FF8500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-historial:hover {
+    background: #FF8500;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 133, 0, 0.2);
+}
+
+/* --- MEJORA DEL BUSCADOR --- */
+#buscarProducto {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid #eee; /* Borde más grueso y suave */
+    margin-bottom: 5px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+#buscarProducto:focus {
+    border-color: #FF8500; /* Resalte naranja al escribir */
+}
+
+/* --- MEJORA DEL PANEL DE TOTAL --- */
+.ventas-resumen {
+    background: white;
+    padding: 25px;
+    border-radius: 15px; /* Más redondeado */
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08); /* Sombra más profunda */
+    height: fit-content;
+    position: sticky; /* Se queda fijo al hacer scroll si hay muchos productos */
+    top: 20px;
+}
+
+.total {
+    font-size: 42px; /* Un poco más grande */
+    font-weight: 800;
+    color: #27ae60;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* --- BOTÓN REGISTRAR VENTA --- */
+#registrarVenta {
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+#registrarVenta:hover {
+    background: #27ae60;
+    transform: scale(1.02); /* Efecto de crecimiento sutil */
+}
+
+@media (max-width: 600px) {
+
+    .ventas-layout {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+    /* Resumen arriba en móvil */
+    .ventas-resumen {
+        order: -1;
+        padding: 16px;
+        position: static;
+    }
+
+    .total {
+        font-size: 32px;
+    }
+
+    .ventas-productos {
+        padding: 16px;
+    }
+
+    /* Selector proveedor en compras */
+    #selectProveedor {
+        font-size: 15px;
+        padding: 10px;
+    }
+
+    /* Tabla carrito scrolleable */
+    .carrito-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        font-size: 13px;
+    }
+
+    .carrito-table th,
+    .carrito-table td {
+        white-space: nowrap;
+        padding: 8px;
+    }
+
+    /* Inputs dentro del carrito */
+    .carrito-table input {
+        font-size: 15px;
+    }
+
+    #buscarProducto {
+        font-size: 16px; /* evita zoom en iOS */
+    }
+
+    #sugerencias li {
+        padding: 12px 10px;
+        font-size: 14px;
+    }
+
+    #btnRegistrarCompra,
+    #registrarVenta {
+        font-size: 15px;
+        padding: 14px;
+    }
+
+    #metodoPago {
+        font-size: 15px;
+        width: 100%;
+    }
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ventas | MyControl</title>
+
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/ventas.css">
+<link rel="stylesheet" href="css/dashboard.css">
+
+</head>
+
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="dashboard-layout">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+<div class="sidebar-header">
+
+<img src="assets/img/logo.png" class="logo" alt="MyControl">
+<h2>MyControl</h2>
+
+</div>
+
+<nav class="menu">
+
+<a class="menu-item" href="dashboard.html">
+<span>🏠</span>
+<span>Inicio</span>
+</a>
+
+<a class="menu-item" href="inventario.html">
+<span>📦</span>
+<span>Inventario</span>
+</a>
+
+<a class="menu-item active" href="ventas.html">
+<span>💰</span>
+<span>Ventas</span>
+</a>
+
+<a class="menu-item" href="compras.html">
+<span>🧾</span>
+<span>Compras</span>
+</a>
+
+<a class="menu-item" href="proveedores.html">
+<span>👥</span>
+<span>Proveedores</span>
+</a>
+
+<a class="menu-item" href="reportes.html">
+<span>📊</span>
+<span>Reportes</span>
+</a>
+
+<a class="menu-item" href="configuracion.html">
+<span>⚙</span>
+<span>Configuración</span>
+</a>
+
+</nav>
+
+</aside>
+
+<!-- CONTENIDO PRINCIPAL -->
+
+<main class="main-content">
+
+<header class="topbar">
+
+<button class="menu-toggle" id="menuToggle">
+☰
+</button>
+
+<div class="ventas-header">
+
+<h1>Nueva <span>Venta</span></h1>
+
+<a href="ventas-historial.html" class="btn-historial">
+    <span>🕒</span> Historial
+</a>
+
+</div>
+
+</header>
+
+<section class="ventas-layout">
+
+<!-- IZQUIERDA (PRODUCTOS Y CARRITO) -->
+
+<div class="ventas-productos">
+
+<input
+type="text"
+id="buscarProducto"
+placeholder="Buscar producto por nombre o código"
+/>
+
+<ul id="sugerencias"></ul>
+
+<h2 class="carrito-title">Carrito de compra</h2>
+
+<table class="carrito-table">
+
+<thead>
+<tr>
+<th>Producto</th>
+<th>Cant</th>
+<th>Precio</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="carritoList"></tbody>
+
+</table>
+
+</div>
+
+<!-- DERECHA (RESUMEN) -->
+
+<div class="ventas-resumen">
+
+<h2>Total</h2>
+
+<p class="total">
+$<span id="total">0</span>
+</p>
+
+<select id="metodoPago">
+
+<option value="efectivo">Efectivo</option>
+<option value="tarjeta">Tarjeta</option>
+<option value="transferencia">Transferencia</option>
+
+</select>
+
+<button id="registrarVenta">
+
+Registrar Venta
+
+</button>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/ventas.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>

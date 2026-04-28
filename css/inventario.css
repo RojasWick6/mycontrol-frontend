@@ -1,0 +1,356 @@
+/* TOOLBAR */
+.inventario-toolbar {
+    margin-bottom: 20px;
+}
+
+.inventario-toolbar input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+}
+
+.inventario-toolbar input:focus {
+    border-color: var(--primary, #FF8500);
+}
+
+/* GRID */
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding-bottom: 30px;
+}
+
+/* CARTA */
+.producto-carta {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.producto-carta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* IMAGEN */
+.carta-imagen {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.carta-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.producto-carta:hover .carta-imagen img {
+    transform: scale(1.05);
+}
+
+/* BODY */
+.carta-body {
+    padding: 14px;
+    flex: 1;
+}
+
+.carta-nombre {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.carta-codigo {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.carta-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.carta-precio {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary, #FF8500);
+}
+
+.carta-stock {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ACCIONES */
+.carta-acciones {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px 14px;
+}
+
+.btn-editar,
+.btn-eliminar {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-editar {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.btn-eliminar {
+    background: #fdecea;
+    color: #c0392b;
+}
+
+.btn-editar:hover,
+.btn-eliminar:hover {
+    opacity: 0.8;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+    font-size: 18px;
+    color: #333;
+    margin: 0 0 4px 0;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.modal-content input:focus {
+    border-color: var(--primary, #FF8500);
+}
+
+/* IMAGEN UPLOAD EN MODAL */
+.imagen-upload {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+
+.imagen-upload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.imagen-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.imagen-upload:hover .imagen-overlay {
+    opacity: 1;
+}
+
+.imagen-overlay label {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    border: 2px solid white;
+}
+
+/* MODAL BOTONES */
+.modal-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.modal-btns button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.modal-btns button:first-child {
+    background: var(--primary, #FF8500);
+    color: white;
+}
+
+.modal-btns button:last-child {
+    background: #eee;
+    color: #555;
+}
+
+.modal-btns button:hover {
+    opacity: 0.85;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #aaa;
+    font-size: 16px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 14px;
+    }
+
+    .carta-imagen {
+        height: 130px;
+    }
+
+    .carta-precio {
+        font-size: 15px;
+    }
+
+    .inventario-toolbar input {
+        max-width: 100%;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+}
+
+/* TABLA GENERAL */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.product-table th {
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 2px solid #eee;
+    font-size: 14px;
+    color: #666;
+    font-weight: 600;
+    background: #fafafa;
+}
+
+.product-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    color: #333;
+}
+
+.product-table tr:last-child td {
+    border-bottom: none;
+}
+
+.product-table tr:hover td {
+    background: #fafafa;
+}
+
+/* BOTONES DE ACCIÓN EN TABLAS */
+.product-table button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.product-table button:first-child {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.product-table button:last-child {
+    background: #fdecea;
+    color: #c0392b;
+}
+
+.product-table button:hover {
+    opacity: 0.75;
+}

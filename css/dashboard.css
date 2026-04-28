@@ -1,0 +1,464 @@
+.dashboard-layout{
+
+display:flex;
+min-height:100vh;
+
+}
+
+/* SIDEBAR */
+
+.sidebar{
+
+width:240px;
+background:white;
+
+padding:20px;
+
+box-shadow:2px 0 10px rgba(0,0,0,0.1);
+
+display:flex;
+flex-direction:column;
+
+transition:.3s;
+
+}
+
+.sidebar-header{
+
+text-align:center;
+margin-bottom:30px;
+
+}
+
+.sidebar-header h2{
+
+font-size:18px;
+
+}
+
+.menu{
+
+display:flex;
+flex-direction:column;
+gap:10px;
+
+}
+
+.menu-item{
+
+padding:12px 15px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+color:var(--text);
+
+transition:.2s;
+
+}
+
+.menu-item:hover{
+
+background:var(--primary-light);
+color:white;
+
+}
+
+.menu-item.active{
+
+background:var(--primary);
+color:white;
+
+}
+
+/* CONTENIDO */
+
+.main-content{
+
+flex:1;
+padding:30px;
+
+background:#f4f4f4;
+
+}
+
+/* TOPBAR */
+
+.topbar{
+
+display:flex;
+align-items:center;
+gap:20px;
+
+margin-bottom:30px;
+
+}
+
+.menu-toggle{
+
+background:var(--primary);
+
+color:white;
+
+border:none;
+
+padding:10px 15px;
+
+border-radius:8px;
+
+font-size:18px;
+
+cursor:pointer;
+
+}
+
+/* CARDS */
+
+.cards{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:20px;
+
+margin-bottom:30px;
+
+}
+
+.card{
+
+background:white;
+
+padding:20px;
+
+border-radius:15px;
+
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
+
+transition:.25s;
+
+}
+
+.card:hover{
+
+transform:translateY(-4px);
+
+box-shadow:0 12px 30px rgba(0,0,0,0.15);
+
+}
+
+.metric{
+
+font-size:28px;
+
+color:var(--primary);
+
+font-weight:bold;
+
+margin:10px 0;
+
+}
+
+/* ACTIVIDAD */
+
+.activity{
+
+background:white;
+
+padding:20px;
+
+border-radius:15px;
+
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
+
+}
+
+.activity-item{
+
+padding:15px;
+
+border-radius:10px;
+
+background:#f9f9f9;
+
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+.sidebar{
+
+position:fixed;
+
+left:-260px;
+top:0;
+
+height:100%;
+
+z-index:1000;
+
+}
+
+.sidebar.active{
+
+left:0;
+
+}
+
+.main-content{
+
+padding:20px;
+
+}
+
+}
+
+/* GRID DASHBOARD */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.dash-box {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dash-box h2 {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+/* ACTIVIDAD */
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    background: #fff3e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.activity-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.activity-desc {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.activity-amount {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FF8500;
+}
+
+.activity-empty {
+    text-align: center;
+    color: #aaa;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+
+    /* TARJETAS */
+    .cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .card {
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .card h3 {
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .card .metric {
+        font-size: 26px;
+        margin: 2px 0;
+    }
+
+    .card span {
+        font-size: 12px;
+    }
+
+    /* GRID DASHBOARD */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .dash-box {
+        padding: 16px;
+    }
+
+    .dash-box h2 {
+        font-size: 14px;
+    }
+
+    /* GRÁFICA más compacta */
+    #graficaSemana {
+        max-height: 180px;
+    }
+
+    /* ACTIVIDAD */
+    .activity-amount {
+        font-size: 13px;
+    }
+
+    .activity-desc {
+        font-size: 13px;
+    }
+}
+
+/* ACTIVIDAD RECIENTE DINÁMICA */
+#actividadReciente {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.act-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fafafa;
+    border-left: 4px solid #eee;
+    transition: transform 0.15s;
+}
+
+.act-item:hover {
+    transform: translateX(3px);
+}
+
+.act-venta  { border-left-color: #2ecc71; background: #f0fdf4; }
+.act-compra { border-left-color: #3498db; background: #eff6ff; }
+.act-stock  { border-left-color: #e67e22; background: #fff7ed; }
+.act-urgente { border-left-color: #e74c3c; background: #fef2f2; }
+
+.act-icono {
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.act-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.act-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.act-desc {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.act-tiempo {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.act-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+.badge-venta   { background: #d1fae5; color: #065f46; }
+.badge-compra  { background: #dbeafe; color: #1e40af; }
+.badge-stock   { background: #fed7aa; color: #92400e; }
+.badge-urgente { background: #fecaca; color: #991b1b; }
+
+.activity-empty {
+    text-align: center;
+    color: #aaa;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .act-item {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .act-icono {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
+    }
+
+    .act-titulo { font-size: 12px; }
+    .act-desc   { font-size: 11px; }
+    .act-badge  { display: none; }
+}
