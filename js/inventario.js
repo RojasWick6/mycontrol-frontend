@@ -47,8 +47,10 @@ function renderProductos(lista) {
         const carta = document.createElement("div")
         carta.classList.add("producto-carta")
 
-        const imagenSrc  = p.imagen_url
-            ? `${API}${p.imagen_url}`
+        const imagenSrc = p.imagen_url
+            ? p.imagen_url.startsWith("data:")
+                ? p.imagen_url
+                : `${API}${p.imagen_url}`
             : "assets/img/no-image.png"
 
         const stockColor = p.stock === 0
@@ -92,13 +94,20 @@ buscador.addEventListener("input", () => {
 })
 
 // ── IMAGEN PREVIEW ────────────────────────────────────────────
+// ── IMAGEN PREVIEW ────────────────────────────────────────────
 inputImagen.addEventListener("change", async () => {
     const file = inputImagen.files[0]
     if (!file) return
 
+    // Preview inmediato
     const reader  = new FileReader()
     reader.onload = e => { previewImg.src = e.target.result }
     reader.readAsDataURL(file)
+
+    // Mostrar indicador de carga
+    previewImg.style.opacity = "0.5"
+    saveBtn.disabled = true
+    saveBtn.textContent = "Subiendo imagen..."
 
     try {
         const formData = new FormData()
@@ -106,9 +115,15 @@ inputImagen.addEventListener("change", async () => {
         const res    = await fetch(`${API}/uploads`, { method: "POST", body: formData })
         const data   = await res.json()
         imagenSubida = data.url
+        previewImg.style.opacity = "1"
+        saveBtn.disabled = false
+        saveBtn.textContent = "Guardar"
     } catch (err) {
         console.error("Error al subir imagen:", err)
         alert("Error al subir la imagen")
+        previewImg.style.opacity = "1"
+        saveBtn.disabled = false
+        saveBtn.textContent = "Guardar"
     }
 })
 
@@ -173,8 +188,10 @@ function editarProducto(id) {
     codigoInput.value       = p.codigo || ""
     precioInput.value       = p.precio
     stockInput.value        = p.stock
-    previewImg.src          = p.imagen_url
-        ? `${API}${p.imagen_url}`
+    previewImg.src = p.imagen_url
+        ? p.imagen_url.startsWith("data:")
+            ? p.imagen_url
+            : `${API}${p.imagen_url}`
         : "assets/img/no-image.png"
 
     abrirModal()

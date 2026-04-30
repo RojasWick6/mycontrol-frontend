@@ -166,3 +166,36 @@ flex-direction:column;
 .sidebar-overlay.active {
     display: block;
 }
+/* BOTÓN AGREGAR GLOBAL */
+.btn-add {
+    background: var(--primary, #FF8500);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-add:hover {
+    background: #e07600;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255,133,0,0.3);
+}
+
+/* TOPBAR */
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.topbar h1 {
+    font-size: 24px;
+    flex: 1;
+}

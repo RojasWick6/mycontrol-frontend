@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/reportes.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -34,10 +33,10 @@
         <header class="topbar">
             <button class="menu-toggle" id="menuToggle">☰</button>
             <h1>Reportes</h1>
-            <button class="btn-corte" id="btnCorte">🧾 Generar corte de caja</button>
+            <button class="btn-corte" id="btnCorte">🧾 Corte de caja</button>
         </header>
 
-        <!-- TARJETAS RESUMEN -->
+        <!-- TARJETAS RESUMEN MES -->
         <section class="reporte-cards">
             <div class="reporte-card">
                 <span class="reporte-icon">💰</span>
@@ -62,33 +61,59 @@
             </div>
         </section>
 
-        <!-- GRÁFICA VENTAS -->
+        <!-- MÉTRICAS CLAVE -->
         <section class="reporte-seccion">
-            <h2>Ventas últimos 30 días</h2>
-            <div class="chart-container">
-                <canvas id="graficaVentas"></canvas>
+            <h2>📈 Resumen del negocio</h2>
+            <div class="metricas-grid">
+                <div class="metrica-box">
+                    <div class="metrica-icono">🎯</div>
+                    <div class="metrica-info">
+                        <p class="metrica-label">Ticket promedio</p>
+                        <p class="metrica-valor" id="ticketPromedio">$0.00</p>
+                        <p class="metrica-sub">Por venta este mes</p>
+                    </div>
+                </div>
+                <div class="metrica-box">
+                    <div class="metrica-icono">📦</div>
+                    <div class="metrica-info">
+                        <p class="metrica-label">Total ventas del mes</p>
+                        <p class="metrica-valor" id="numVentasMes">0</p>
+                        <p class="metrica-sub">Transacciones</p>
+                    </div>
+                </div>
+                <div class="metrica-box">
+                    <div class="metrica-icono">📅</div>
+                    <div class="metrica-info">
+                        <p class="metrica-label">Mejor día del mes</p>
+                        <p class="metrica-valor" id="mejorDia">—</p>
+                        <p class="metrica-sub" id="mejorDiaMonto">$0.00</p>
+                    </div>
+                </div>
+                <div class="metrica-box">
+                    <div class="metrica-icono">💳</div>
+                    <div class="metrica-info">
+                        <p class="metrica-label">Método más usado</p>
+                        <p class="metrica-valor" id="metodoPrincipal">—</p>
+                        <p class="metrica-sub" id="metodoPct">0% de las ventas</p>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- DOS COLUMNAS -->
         <section class="reporte-grid">
-
-            <!-- MÁS VENDIDOS -->
             <div class="reporte-tabla-box">
                 <div class="reporte-box-header">
                     <h2>🏆 Productos más vendidos</h2>
                 </div>
                 <div id="masVendidosList" class="ranking-lista"></div>
             </div>
-
-            <!-- STOCK BAJO -->
             <div class="reporte-tabla-box">
                 <div class="reporte-box-header">
                     <h2>⚠️ Stock bajo</h2>
                 </div>
                 <div id="stockBajoList" class="stock-lista"></div>
             </div>
-
         </section>
 
         <!-- HISTORIAL COMPRAS -->
@@ -115,10 +140,7 @@
 <div class="modal" id="modalCorte">
     <div class="modal-content modal-corte-form">
         <h2>🧾 Generar corte de caja</h2>
-        <p style="color:#666; font-size:14px; margin-top:-8px">
-            Selecciona el período para el corte
-        </p>
-
+        <p style="color:#666; font-size:14px; margin-top:-8px">Selecciona el período para el corte</p>
         <div class="corte-fechas">
             <div class="fecha-group">
                 <label>Fecha inicio</label>
@@ -129,33 +151,21 @@
                 <input type="date" id="fechaFin">
             </div>
         </div>
-
         <div class="corte-accesos-rapidos">
             <button onclick="setHoy()">Hoy</button>
             <button onclick="setAyer()">Ayer</button>
             <button onclick="setSemana()">Esta semana</button>
             <button onclick="setMes()">Este mes</button>
         </div>
-
         <div class="modal-btns" style="margin-top:20px">
-            <button id="btnGenerarPDF" style="background:#e74c3c">
-                📄 Descargar PDF
-            </button>
-            <button id="btnGenerarTicket" style="background:#FF8500">
-                🖨️ Ticket térmico
-            </button>
+            <button id="btnGenerarPDF" style="background:#e74c3c">📄 PDF</button>
+            <button id="btnGenerarTicket" style="background:#FF8500">🖨️ Ticket</button>
         </div>
-        <button id="btnCerrarCorte"
-            style="width:100%;margin-top:8px;padding:10px;border:none;
-                   border-radius:8px;background:#eee;color:#555;
-                   font-size:14px;cursor:pointer">
+        <button id="btnCerrarCorte" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:8px;background:#eee;color:#555;font-size:14px;cursor:pointer">
             Cancelar
         </button>
     </div>
 </div>
-
-<!-- ÁREA DE IMPRESIÓN TICKET -->
-<div id="ticketImprimir" style="display:none"></div>
 
 <script src="js/config.js"></script>
 <script src="js/session.js"></script>
