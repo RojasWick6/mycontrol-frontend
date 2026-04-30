@@ -23,7 +23,7 @@ function cerrarModal() { modal.classList.remove("active"); limpiarForm() }
 // ── CARGAR ────────────────────────────────────────────────────
 async function cargarProductos() {
     try {
-        const res = await fetch(`${API}/productos?empresa_id=${EMPRESA_ID}`)
+        const res = await fetch(API + "/productos?empresa_id=" + EMPRESA_ID)
         productos = await res.json()
         renderProductos(productos)
     } catch (err) {
@@ -36,21 +36,18 @@ function renderProductos(lista) {
     productosGrid.innerHTML = ""
 
     if (lista.length === 0) {
-        productosGrid.innerHTML = `
-            <div class="empty-state">
-                <p>No hay productos registrados</p>
-            </div>`
+        productosGrid.innerHTML = '<div class="empty-state"><p>No hay productos registrados</p></div>'
         return
     }
 
-    lista.forEach(p => {
+    lista.forEach(function(p) {
         const carta = document.createElement("div")
         carta.classList.add("producto-carta")
 
         const imagenSrc = p.imagen_url
-            ? p.imagen_url.startsWith("data:")
+            ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http")
                 ? p.imagen_url
-                : `${API}${p.imagen_url}`
+                : API + p.imagen_url)
             : "assets/img/no-image.png"
 
         const stockColor = p.stock === 0
@@ -59,76 +56,70 @@ function renderProductos(lista) {
                 ? "#e67e22"
                 : "#2ecc71"
 
-        carta.innerHTML = `
-            <div class="carta-imagen">
-                <img src="${imagenSrc}" alt="${p.nombre}"
-                    onerror="this.src='assets/img/no-image.png'">
-            </div>
-            <div class="carta-body">
-                <h3 class="carta-nombre">${p.nombre}</h3>
-                <p class="carta-codigo">Cód: ${p.codigo || "—"}</p>
-                <div class="carta-info">
-                    <div class="carta-precio">$${parseFloat(p.precio).toFixed(2)}</div>
-                    <div class="carta-stock" style="color:${stockColor}">
-                        📦 ${p.stock} uds
-                    </div>
-                </div>
-            </div>
-            <div class="carta-acciones">
-                <button class="btn-editar"   onclick="editarProducto(${p.id})">✏️ Editar</button>
-                <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">🗑️ Eliminar</button>
-            </div>
-        `
+        carta.innerHTML =
+            '<div class="carta-imagen">' +
+                '<img src="' + imagenSrc + '" alt="' + p.nombre + '" onerror="this.src=\'assets/img/no-image.png\'">' +
+            '</div>' +
+            '<div class="carta-body">' +
+                '<h3 class="carta-nombre">' + p.nombre + '</h3>' +
+                '<p class="carta-codigo">Cód: ' + (p.codigo || "—") + '</p>' +
+                '<div class="carta-info">' +
+                    '<div class="carta-precio">$' + parseFloat(p.precio).toFixed(2) + '</div>' +
+                    '<div class="carta-stock" style="color:' + stockColor + '">📦 ' + p.stock + ' uds</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="carta-acciones">' +
+                '<button class="btn-editar" onclick="editarProducto(' + p.id + ')">✏️ Editar</button>' +
+                '<button class="btn-eliminar" onclick="eliminarProducto(' + p.id + ')">🗑️ Eliminar</button>' +
+            '</div>'
+
         productosGrid.appendChild(carta)
     })
 }
 
 // ── BUSCADOR ──────────────────────────────────────────────────
-buscador.addEventListener("input", () => {
+buscador.addEventListener("input", function() {
     const texto     = buscador.value.toLowerCase()
-    const filtrados = productos.filter(p =>
-        p.nombre.toLowerCase().includes(texto) ||
-        (p.codigo && p.codigo.toLowerCase().includes(texto))
-    )
+    const filtrados = productos.filter(function(p) {
+        return p.nombre.toLowerCase().includes(texto) ||
+               (p.codigo && p.codigo.toLowerCase().includes(texto))
+    })
     renderProductos(filtrados)
 })
 
 // ── IMAGEN PREVIEW ────────────────────────────────────────────
-// ── IMAGEN PREVIEW ────────────────────────────────────────────
-inputImagen.addEventListener("change", async () => {
+inputImagen.addEventListener("change", async function() {
     const file = inputImagen.files[0]
     if (!file) return
 
-    // Preview inmediato
     const reader  = new FileReader()
-    reader.onload = e => { previewImg.src = e.target.result }
+    reader.onload = function(e) { previewImg.src = e.target.result }
     reader.readAsDataURL(file)
 
-    // Mostrar indicador de carga
     previewImg.style.opacity = "0.5"
-    saveBtn.disabled = true
-    saveBtn.textContent = "Subiendo imagen..."
+    saveBtn.disabled         = true
+    saveBtn.textContent      = "Subiendo imagen..."
 
     try {
         const formData = new FormData()
         formData.append("imagen", file)
-        const res    = await fetch(`${API}/uploads`, { method: "POST", body: formData })
+        const res    = await fetch(API + "/uploads", { method: "POST", body: formData })
         const data   = await res.json()
-        imagenSubida = data.url
+        imagenSubida             = data.url
         previewImg.style.opacity = "1"
-        saveBtn.disabled = false
-        saveBtn.textContent = "Guardar"
+        saveBtn.disabled         = false
+        saveBtn.textContent      = "Guardar"
     } catch (err) {
         console.error("Error al subir imagen:", err)
         alert("Error al subir la imagen")
         previewImg.style.opacity = "1"
-        saveBtn.disabled = false
-        saveBtn.textContent = "Guardar"
+        saveBtn.disabled         = false
+        saveBtn.textContent      = "Guardar"
     }
 })
 
 // ── ABRIR MODAL NUEVO ─────────────────────────────────────────
-openModalBtn.addEventListener("click", () => {
+openModalBtn.addEventListener("click", function() {
     productoEditando        = null
     imagenSubida            = null
     modalTitulo.textContent = "Nuevo producto"
@@ -140,7 +131,7 @@ openModalBtn.addEventListener("click", () => {
 cerrarModalBtn.addEventListener("click", cerrarModal)
 
 // ── GUARDAR ───────────────────────────────────────────────────
-saveBtn.addEventListener("click", async () => {
+saveBtn.addEventListener("click", async function() {
     const nombre = nombreInput.value.trim()
     const codigo = codigoInput.value.trim()
     const precio = precioInput.value
@@ -151,25 +142,53 @@ saveBtn.addEventListener("click", async () => {
         return
     }
 
-    const body = { nombre, codigo, precio, stock }
-    if (imagenSubida) body.imagen_url = imagenSubida
-
     try {
         if (productoEditando) {
-            await fetch(`${API}/productos/${productoEditando}`, {
+            const body = { nombre, codigo, precio, stock }
+            if (imagenSubida) body.imagen_url = imagenSubida
+
+            const res         = await fetch(API + "/productos/" + productoEditando, {
                 method:  "PUT",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify(body)
             })
+            const actualizado = await res.json()
+
+            const idx = productos.findIndex(function(p) { return p.id === productoEditando })
+            if (idx !== -1) {
+                // Si no cambió imagen usar la que ya tenía
+                if (!imagenSubida && productos[idx].imagen_url) {
+                    actualizado.imagen_url = productos[idx].imagen_url
+                }
+                productos[idx] = actualizado
+            }
+
         } else {
-            await fetch(`${API}/productos`, {
+            const bodyPost = {
+                empresa_id: EMPRESA_ID,
+                nombre, codigo, precio, stock
+            }
+            if (imagenSubida) bodyPost.imagen_url = imagenSubida
+
+            const res   = await fetch(API + "/productos", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
-                body:    JSON.stringify({ empresa_id: EMPRESA_ID, ...body })
+                body:    JSON.stringify(bodyPost)
             })
+            const nuevo = await res.json()
+
+            // Si el servidor no devolvió imagen_url pero tenemos una local
+            if (imagenSubida && !nuevo.imagen_url) {
+                nuevo.imagen_url = imagenSubida
+            }
+
+            productos.push(nuevo)
         }
+
         cerrarModal()
-        await cargarProductos()
+        renderProductos(productos)
+        // YA NO llamamos cargarProductos() para no sobreescribir
+
     } catch (err) {
         alert("Error al guardar producto")
         console.error(err)
@@ -178,7 +197,7 @@ saveBtn.addEventListener("click", async () => {
 
 // ── EDITAR ────────────────────────────────────────────────────
 function editarProducto(id) {
-    const p = productos.find(p => p.id === id)
+    const p = productos.find(function(p) { return p.id === id })
     if (!p) return
 
     productoEditando        = id
@@ -188,10 +207,10 @@ function editarProducto(id) {
     codigoInput.value       = p.codigo || ""
     precioInput.value       = p.precio
     stockInput.value        = p.stock
-    previewImg.src = p.imagen_url
-        ? p.imagen_url.startsWith("data:")
+    previewImg.src          = p.imagen_url
+        ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http")
             ? p.imagen_url
-            : `${API}${p.imagen_url}`
+            : API + p.imagen_url)
         : "assets/img/no-image.png"
 
     abrirModal()
@@ -201,8 +220,9 @@ function editarProducto(id) {
 async function eliminarProducto(id) {
     if (!confirm("¿Eliminar este producto?")) return
     try {
-        await fetch(`${API}/productos/${id}`, { method: "DELETE" })
-        await cargarProductos()
+        await fetch(API + "/productos/" + id, { method: "DELETE" })
+        productos = productos.filter(function(p) { return p.id !== id })
+        renderProductos(productos)
     } catch (err) {
         alert("Error al eliminar")
     }
