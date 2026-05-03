@@ -354,3 +354,43 @@
 .product-table button:hover {
     opacity: 0.75;
 }
+
+/* RESPONSIVE MÓVIL — TABLAS */
+@media (max-width: 768px) {
+    .product-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+
+    .product-table th,
+    .product-table td {
+        white-space: nowrap;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .product-table button {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    .topbar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 0;
+    }
+
+    .topbar h1 {
+        font-size: 20px;
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .btn-add {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
