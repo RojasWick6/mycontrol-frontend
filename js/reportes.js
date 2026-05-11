@@ -11,10 +11,24 @@ async function cargarReportes() {
 // ── RESUMEN MES ───────────────────────────────────────────────
 async function cargarResumenMes() {
     try {
-        const res   = await fetch(API + "/reportes/ventas-por-dia?empresa_id=" + EMPRESA_ID)
-        const datos = await res.json()
-        const total = datos.reduce(function(acc, v) { return acc + parseFloat(v.total) }, 0)
+        const res    = await fetch(API + "/ventas?empresa_id=" + EMPRESA_ID)
+        const ventas = await res.json()
+
+        const hoy  = new Date()
+        const mes  = hoy.getMonth()
+        const anio = hoy.getFullYear()
+
+        const ventasMes = ventas.filter(function(v) {
+            const f = new Date(v.fecha)
+            return f.getMonth() === mes && f.getFullYear() === anio
+        })
+
+        const total = ventasMes.reduce(function(acc, v) {
+            return acc + parseFloat(v.total)
+        }, 0)
+
         document.getElementById("ventasMes").textContent = "$" + total.toFixed(2)
+
     } catch (err) {
         console.error("Error resumen mes:", err)
     }
@@ -179,7 +193,11 @@ async function cargarCompras() {
 
         const hoy      = new Date()
         const totalMes = datos
-            .filter(function(c) { return new Date(c.fecha).getMonth() === hoy.getMonth() })
+            .filter(function(c) { 
+                const f = new Date(c.fecha)
+                return f.getMonth() === hoy.getMonth() && 
+                    f.getFullYear() === hoy.getFullYear()
+            })
             .reduce(function(acc, c) { return acc + parseFloat(c.total) }, 0)
         document.getElementById("comprasMes").textContent = "$" + totalMes.toFixed(2)
 
