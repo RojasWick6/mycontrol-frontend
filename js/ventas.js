@@ -4,6 +4,82 @@ let carrito   = []
 const buscarInput = document.getElementById("buscarProducto")
 const totalSpan   = document.getElementById("total")
 
+
+function generarTicketVenta(venta_id, metodo, items, total) {
+    const empresa    = SESSION ? SESSION.nombre_empresa || "Mi Negocio" : "Mi Negocio"
+    const usuario    = USUARIO_NOMBRE || "Cajero"
+    const fecha      = new Date().toLocaleString("es-MX")
+    const folio      = "V-" + String(venta_id).padStart(5, "0")
+
+    let filasItems = ""
+    items.forEach(function(item) {
+        const subtotal = parseFloat(item.precio) * item.cantidad
+        filasItems +=
+            "<tr>" +
+            "<td style='padding:4px 6px;font-size:11px;border-bottom:1px solid #f0f0f0'>" + item.nombre + "</td>" +
+            "<td style='padding:4px 6px;font-size:11px;text-align:center;border-bottom:1px solid #f0f0f0'>" + item.cantidad + "</td>" +
+            "<td style='padding:4px 6px;font-size:11px;text-align:right;border-bottom:1px solid #f0f0f0'>$" + parseFloat(item.precio).toFixed(2) + "</td>" +
+            "<td style='padding:4px 6px;font-size:11px;text-align:right;font-weight:700;border-bottom:1px solid #f0f0f0'>$" + subtotal.toFixed(2) + "</td>" +
+            "</tr>"
+    })
+
+    const html =
+        "<!DOCTYPE html><html><head><meta charset='UTF-8'>" +
+        "<title>Ticket " + folio + "</title>" +
+        "<style>" +
+        "* { margin:0; padding:0; box-sizing:border-box; }" +
+        "body { font-family:'Courier New',monospace; width:80mm; max-width:80mm; padding:10px; color:#111; }" +
+        "@media print { @page { size:80mm auto; margin:0; } body { padding:6px; } .no-print { display:none; } }" +
+        "</style></head><body>" +
+
+        "<div style='text-align:center;border-bottom:1px dashed #000;padding-bottom:10px;margin-bottom:10px'>" +
+        "<h1 style='font-size:16px;font-weight:900;letter-spacing:2px'>" + empresa.toUpperCase() + "</h1>" +
+        "<p style='font-size:10px;color:#555;margin-top:3px'>TICKET DE VENTA</p>" +
+        "</div>" +
+
+        "<div style='margin-bottom:10px;font-size:10px;color:#555'>" +
+        "<p>Folio: <strong style='color:#111'>" + folio + "</strong></p>" +
+        "<p>Fecha: " + fecha + "</p>" +
+        "<p>Cajero: " + usuario + "</p>" +
+        "<p>Método: " + metodo + "</p>" +
+        "</div>" +
+
+        "<table style='width:100%;border-collapse:collapse;margin-bottom:10px'>" +
+        "<thead><tr>" +
+        "<th style='text-align:left;font-size:10px;padding:4px 6px;border-bottom:1px dashed #000'>Producto</th>" +
+        "<th style='text-align:center;font-size:10px;padding:4px 6px;border-bottom:1px dashed #000'>Cant</th>" +
+        "<th style='text-align:right;font-size:10px;padding:4px 6px;border-bottom:1px dashed #000'>P.U.</th>" +
+        "<th style='text-align:right;font-size:10px;padding:4px 6px;border-bottom:1px dashed #000'>Sub</th>" +
+        "</tr></thead>" +
+        "<tbody>" + filasItems + "</tbody>" +
+        "</table>" +
+
+        "<div style='border-top:1px dashed #000;padding-top:8px;margin-bottom:10px'>" +
+        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+        "<span style='font-size:14px;font-weight:700'>TOTAL</span>" +
+        "<span style='font-size:18px;font-weight:900'>$" + parseFloat(total).toFixed(2) + "</span>" +
+        "</div>" +
+        "</div>" +
+
+        "<div style='text-align:center;border-top:1px dashed #000;padding-top:8px;font-size:9px;color:#888'>" +
+        "<p>¡Gracias por su compra!</p>" +
+        "<p style='margin-top:3px'>MyControl ERP</p>" +
+        "</div>" +
+
+        "<div class='no-print' style='margin-top:16px;display:flex;gap:8px'>" +
+        "<button onclick='window.print()' style='flex:1;padding:10px;background:#FF8500;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer'>🖨️ Imprimir</button>" +
+        "<button onclick='window.close()' style='flex:1;padding:10px;background:#eee;color:#555;border:none;border-radius:8px;font-size:13px;cursor:pointer'>Cerrar</button>" +
+        "</div>" +
+
+        "</body></html>"
+
+        const blob = new Blob([html], { type: "text/html" })
+        const url  = URL.createObjectURL(blob)
+        window.open(url, "_blank")
+}
+
+
+
 // ── CARGAR PRODUCTOS ──────────────────────────────────────────
 async function cargarProductos() {
     try {
@@ -27,10 +103,12 @@ function renderCards(lista) {
     }
 
     lista.forEach(function(p) {
-        const enCarrito  = carrito.find(function(c) { return c.id === p.id })
-        const cantidad   = enCarrito ? enCarrito.cantidad : 0
-        const sinStock   = p.stock <= 0
-        const imagenSrc  = p.imagen_url
+        const enCarrito = carrito.find(function(c) { return c.id === p.id })
+        const cantidad  = enCarrito ? enCarrito.cantidad : 0
+        const sinStock  = p.stock <= 0
+
+        // Imagen lazy — solo carga cuando es visible
+        const imagenSrc = p.imagen_url
             ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http")
                 ? p.imagen_url
                 : API + p.imagen_url)
@@ -41,7 +119,7 @@ function renderCards(lista) {
 
         card.innerHTML =
             '<div class="venta-card-img">' +
-                '<img src="' + imagenSrc + '" alt="' + p.nombre + '" onerror="this.src=\'assets/img/no-image.png\'">' +
+                '<img data-src="' + imagenSrc + '" src="assets/img/no-image.png" alt="' + p.nombre + '" class="lazy-img" onerror="this.src=\'assets/img/no-image.png\'">' +
                 (sinStock ? '<div class="venta-card-agotado-tag">Sin stock</div>' : '') +
                 (cantidad > 0 ? '<div class="venta-card-qty-badge">' + cantidad + '</div>' : '') +
             '</div>' +
@@ -61,6 +139,33 @@ function renderCards(lista) {
 
         grid.appendChild(card)
     })
+
+    // Activar lazy loading
+    activarLazyImages()
+}
+
+function activarLazyImages() {
+    const imgs = document.querySelectorAll("img.lazy-img")
+
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    const img = entry.target
+                    img.src = img.dataset.src
+                    img.classList.remove("lazy-img")
+                    observer.unobserve(img)
+                }
+            })
+        }, { rootMargin: "100px" })
+
+        imgs.forEach(function(img) { observer.observe(img) })
+    } else {
+        // Fallback para navegadores viejos
+        imgs.forEach(function(img) {
+            img.src = img.dataset.src
+        })
+    }
 }
 
 function actualizarContador(total) {
@@ -183,7 +288,11 @@ document.getElementById("registrarVenta").addEventListener("click", async functi
         }
     }
 
-    const metodo = document.getElementById("metodoPago").value
+    const metodo     = document.getElementById("metodoPago").value
+    const itemsVenta = carrito.slice()
+    const totalVenta = itemsVenta.reduce(function(acc, p) {
+        return acc + parseFloat(p.precio) * p.cantidad
+    }, 0)
 
     try {
         const res = await fetch(API + "/ventas", {
@@ -202,10 +311,14 @@ document.getElementById("registrarVenta").addEventListener("click", async functi
         const data = await res.json()
 
         if (data.venta_id) {
-            alert("✅ Venta registrada correctamente")
             carrito = []
             await cargarProductos()
             renderCarrito()
+
+            // Preguntar si desea ticket
+            if (confirm("✅ Venta registrada.\n\n¿Deseas imprimir el ticket?")) {
+                generarTicketVenta(data.venta_id, metodo, itemsVenta, totalVenta)
+            }
         }
     } catch (err) {
         alert("Error al conectar con el servidor")

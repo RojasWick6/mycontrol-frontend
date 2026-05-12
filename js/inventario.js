@@ -31,6 +31,26 @@ async function cargarProductos() {
     }
 }
 
+// ── LAZY LOADING ──────────────────────────────────────────────
+function activarLazyImages() {
+    const imgs = document.querySelectorAll("img.lazy-img")
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    const img = entry.target
+                    img.src = img.dataset.src
+                    img.classList.remove("lazy-img")
+                    observer.unobserve(img)
+                }
+            })
+        }, { rootMargin: "150px" })
+        imgs.forEach(function(img) { observer.observe(img) })
+    } else {
+        imgs.forEach(function(img) { img.src = img.dataset.src })
+    }
+}
+
 // ── RENDER CARTAS ─────────────────────────────────────────────
 function renderProductos(lista) {
     productosGrid.innerHTML = ""
@@ -58,7 +78,9 @@ function renderProductos(lista) {
 
         carta.innerHTML =
             '<div class="carta-imagen">' +
-                '<img src="' + imagenSrc + '" alt="' + p.nombre + '" onerror="this.src=\'assets/img/no-image.png\'">' +
+                '<img data-src="' + imagenSrc + '" src="assets/img/no-image.png" ' +
+                'class="lazy-img" alt="' + p.nombre + '" ' +
+                'onerror="this.src=\'assets/img/no-image.png\'">' +
             '</div>' +
             '<div class="carta-body">' +
                 '<h3 class="carta-nombre">' + p.nombre + '</h3>' +
@@ -75,6 +97,8 @@ function renderProductos(lista) {
 
         productosGrid.appendChild(carta)
     })
+
+    activarLazyImages()
 }
 
 // ── BUSCADOR ──────────────────────────────────────────────────
@@ -156,7 +180,6 @@ saveBtn.addEventListener("click", async function() {
 
             const idx = productos.findIndex(function(p) { return p.id === productoEditando })
             if (idx !== -1) {
-                // Si no cambió imagen usar la que ya tenía
                 if (!imagenSubida && productos[idx].imagen_url) {
                     actualizado.imagen_url = productos[idx].imagen_url
                 }
@@ -177,7 +200,6 @@ saveBtn.addEventListener("click", async function() {
             })
             const nuevo = await res.json()
 
-            // Si el servidor no devolvió imagen_url pero tenemos una local
             if (imagenSubida && !nuevo.imagen_url) {
                 nuevo.imagen_url = imagenSubida
             }
@@ -187,7 +209,6 @@ saveBtn.addEventListener("click", async function() {
 
         cerrarModal()
         renderProductos(productos)
-        // YA NO llamamos cargarProductos() para no sobreescribir
 
     } catch (err) {
         alert("Error al guardar producto")
