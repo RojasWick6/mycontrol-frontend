@@ -82,6 +82,8 @@ function generarTicketVenta(venta_id, metodo, items, total) {
 
 // ── CARGAR PRODUCTOS ──────────────────────────────────────────
 async function cargarProductos() {
+    mostrarLoading("Cargando catálogo...");
+
     try {
         const res = await fetch(API + "/productos?empresa_id=" + EMPRESA_ID)
         productos = await res.json()
@@ -89,6 +91,8 @@ async function cargarProductos() {
         actualizarContador(productos.length)
     } catch (err) {
         console.error("Error al cargar productos:", err)
+    } finally {
+        ocultarLoading()
     }
 }
 

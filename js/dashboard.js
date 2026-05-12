@@ -66,14 +66,20 @@ function tiempoTranscurrido(fechaStr) {
 
 // ── INVENTARIO ────────────────────────────────────────────────
 async function cargarInventario() {
+    mostrarLoading("Actualizando datos...");
+
     try {
         const res       = await fetch(`${API}/productos?empresa_id=${EMPRESA_ID}`)
         const productos = await res.json()
+        
         document.getElementById("productosTotal").textContent  = productos.length
         const totalStock = productos.reduce((acc, p) => acc + p.stock, 0)
         document.getElementById("inventarioTotal").textContent = totalStock
+
     } catch (err) {
         console.error("Error inventario:", err)
+    } finally {
+        ocultarLoading()
     }
 }
 
@@ -209,6 +215,19 @@ async function cargarActividad() {
     } catch (err) {
         console.error("Error actividad:", err)
     }
+}
+
+function mostrarLoading(texto) {
+    const overlay = document.getElementById("loadingOverlay")
+    if (!overlay) return
+    const txt = overlay.querySelector(".loading-texto")
+    if (txt) txt.textContent = texto || "Cargando..."
+    overlay.classList.add("active")
+}
+
+function ocultarLoading() {
+    const overlay = document.getElementById("loadingOverlay")
+    if (overlay) overlay.classList.remove("active")
 }
 
 // ── INIT ──────────────────────────────────────────────────────

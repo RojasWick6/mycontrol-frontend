@@ -22,12 +22,15 @@ function cerrarModal() { modal.classList.remove("active"); limpiarForm() }
 
 // ── CARGAR ────────────────────────────────────────────────────
 async function cargarProductos() {
+    mostrarLoading("Cargando productos..."); 
     try {
         const res = await fetch(API + "/productos?empresa_id=" + EMPRESA_ID)
         productos = await res.json()
         renderProductos(productos)
     } catch (err) {
         console.error("Error al cargar productos:", err)
+    } finally {
+        ocultarLoading()
     }
 }
 
