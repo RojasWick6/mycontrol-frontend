@@ -341,12 +341,19 @@ document.getElementById("cancelarVenta").addEventListener("click", function() {
 })
 
 // ── ESCÁNER CÓDIGO DE BARRAS ──────────────────────────────────
-var escanerActivo   = false
-var escanerCallback = null
+// ── ESCÁNER CÓDIGO DE BARRAS ──────────────────────────────────
+var escanerActivo      = false
+var escanerCallback    = null
+var ultimoCodigo       = null
+var contadorLecturas   = 0
+var LECTURAS_REQUERIDAS = 1
 
 function iniciarEscaner(callback) {
-    escanerCallback = callback
-    escanerActivo   = false
+    escanerCallback  = callback
+    escanerActivo    = false
+    ultimoCodigo     = null
+    contadorLecturas = 0
+
     document.getElementById("escanerStatus").textContent = "Iniciando cámara..."
     document.getElementById("modalEscaner").classList.add("active")
 
@@ -357,10 +364,16 @@ function iniciarEscaner(callback) {
             target: document.getElementById("escaner-viewport"),
             constraints: {
                 facingMode: "environment",
-                width:  { min: 300 },
-                height: { min: 200 }
+                width:  { ideal: 1280 },
+                height: { ideal: 720 }
             }
         },
+        locator: {
+            patchSize: "medium",
+            halfSample: false
+        },
+        numOfWorkers: 2,
+        frequency: 10,
         decoder: {
             readers: [
                 "ean_reader",
@@ -369,56 +382,104 @@ function iniciarEscaner(callback) {
                 "code_39_reader",
                 "upc_reader",
                 "upc_e_reader"
-            ]
+            ],
+            debug: {
+                showCanvas:        false,
+                showPatches:       false,
+                showFoundPatches:  false,
+                showSkeleton:      false,
+                showLabels:        false,
+                showPatchLabels:   false,
+                showRemainingPatchLabels: false
+            }
         },
         locate: true
     }, function(err) {
         if (err) {
-            document.getElementById("escanerStatus").textContent = "Error al acceder a la cámara"
+            document.getElementById("escanerStatus").textContent = "❌ Error al acceder a la cámara"
             console.error(err)
             return
         }
         Quagga.start()
-        document.getElementById("escanerStatus").textContent = "Listo — apunta al código"
+        document.getElementById("escanerStatus").textContent = "✅ Listo — apunta al código"
+    })
+
+    Quagga.onProcessed(function(result) {
+        var drawingCtx    = Quagga.canvas.ctx.overlay
+        var drawingCanvas = Quagga.canvas.dom.overlay
+        if (!drawingCtx || !drawingCanvas) return
+
+        drawingCtx.clearRect(
+            0, 0,
+            parseInt(drawingCanvas.getAttribute("width")),
+            parseInt(drawingCanvas.getAttribute("height"))
+        )
+
+        if (result && result.boxes) {
+            result.boxes.filter(function(box) {
+                return box !== result.box
+            }).forEach(function(box) {
+                Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, {
+                    color: "rgba(255,133,0,0.3)", lineWidth: 2
+                })
+            })
+        }
+
+        if (result && result.box) {
+            Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, {
+                color: "#FF8500", lineWidth: 3
+            })
+        }
     })
 
     Quagga.onDetected(function(result) {
         if (escanerActivo) return
-        const codigo = result.codeResult.code
-        if (!codigo) return
-        escanerActivo = true
 
-        if (navigator.vibrate) navigator.vibrate(100)
-        detenerEscaner()
-        if (escanerCallback) escanerCallback(codigo)
+        var codigo     = result.codeResult.code
+        var confianza  = result.codeResult.decodedCodes
+            .filter(function(c) { return c.error !== undefined })
+            .reduce(function(acc, c) { return acc + c.error }, 0)
+
+        // Ignorar lecturas con baja confianza
+        if (confianza > 0.25) return
+
+        // Validar que el código tenga formato razonable
+        if (!codigo || codigo.length < 4) return
+
+        // Exigir misma lectura N veces seguidas
+        if (codigo === ultimoCodigo) {
+            contadorLecturas++
+        } else {
+            ultimoCodigo     = codigo
+            contadorLecturas = 1
+        }
+
+        var progreso = contadorLecturas + "/" + LECTURAS_REQUERIDAS
+        document.getElementById("escanerStatus").textContent = "Leyendo... " + progreso
+
+        if (contadorLecturas < LECTURAS_REQUERIDAS) return
+
+        // Código confirmado
+        escanerActivo = true
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100])
+        document.getElementById("escanerStatus").textContent = "✅ Código: " + codigo
+
+        setTimeout(function() {
+            detenerEscaner()
+            if (escanerCallback) escanerCallback(codigo)
+        }, 300)
     })
 }
 
 function detenerEscaner() {
     try { Quagga.stop() } catch(e) {}
+    ultimoCodigo     = null
+    contadorLecturas = 0
+    escanerActivo    = false
     document.getElementById("modalEscaner").classList.remove("active")
 }
 
 document.getElementById("cerrarEscaner").addEventListener("click", detenerEscaner)
-
-document.getElementById("btnEscanerVentas").addEventListener("click", function() {
-    iniciarEscaner(function(codigo) {
-        // Buscar el producto por código
-        const encontrado = productos.find(function(p) {
-            return p.codigo && p.codigo.toLowerCase() === codigo.toLowerCase()
-        })
-
-        if (encontrado) {
-            cambiarCantidad(encontrado.id, 1)
-            document.getElementById("escanerStatus").textContent = "✅ " + encontrado.nombre + " agregado"
-        } else {
-            // Si no existe, poner el código en el buscador
-            document.getElementById("buscarProducto").value = codigo
-            buscarInput.dispatchEvent(new Event("input"))
-            document.getElementById("escanerStatus").textContent = "⚠️ Código no encontrado: " + codigo
-        }
-    })
-})
 
 // ── INIT ──────────────────────────────────────────────────────
 cargarProductos()
