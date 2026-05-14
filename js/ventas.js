@@ -340,6 +340,86 @@ document.getElementById("cancelarVenta").addEventListener("click", function() {
     }
 })
 
+// ── ESCÁNER CÓDIGO DE BARRAS ──────────────────────────────────
+var escanerActivo   = false
+var escanerCallback = null
+
+function iniciarEscaner(callback) {
+    escanerCallback = callback
+    escanerActivo   = false
+    document.getElementById("escanerStatus").textContent = "Iniciando cámara..."
+    document.getElementById("modalEscaner").classList.add("active")
+
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.getElementById("escaner-viewport"),
+            constraints: {
+                facingMode: "environment",
+                width:  { min: 300 },
+                height: { min: 200 }
+            }
+        },
+        decoder: {
+            readers: [
+                "ean_reader",
+                "ean_8_reader",
+                "code_128_reader",
+                "code_39_reader",
+                "upc_reader",
+                "upc_e_reader"
+            ]
+        },
+        locate: true
+    }, function(err) {
+        if (err) {
+            document.getElementById("escanerStatus").textContent = "Error al acceder a la cámara"
+            console.error(err)
+            return
+        }
+        Quagga.start()
+        document.getElementById("escanerStatus").textContent = "Listo — apunta al código"
+    })
+
+    Quagga.onDetected(function(result) {
+        if (escanerActivo) return
+        const codigo = result.codeResult.code
+        if (!codigo) return
+        escanerActivo = true
+
+        if (navigator.vibrate) navigator.vibrate(100)
+        detenerEscaner()
+        if (escanerCallback) escanerCallback(codigo)
+    })
+}
+
+function detenerEscaner() {
+    try { Quagga.stop() } catch(e) {}
+    document.getElementById("modalEscaner").classList.remove("active")
+}
+
+document.getElementById("cerrarEscaner").addEventListener("click", detenerEscaner)
+
+document.getElementById("btnEscanerVentas").addEventListener("click", function() {
+    iniciarEscaner(function(codigo) {
+        // Buscar el producto por código
+        const encontrado = productos.find(function(p) {
+            return p.codigo && p.codigo.toLowerCase() === codigo.toLowerCase()
+        })
+
+        if (encontrado) {
+            cambiarCantidad(encontrado.id, 1)
+            document.getElementById("escanerStatus").textContent = "✅ " + encontrado.nombre + " agregado"
+        } else {
+            // Si no existe, poner el código en el buscador
+            document.getElementById("buscarProducto").value = codigo
+            buscarInput.dispatchEvent(new Event("input"))
+            document.getElementById("escanerStatus").textContent = "⚠️ Código no encontrado: " + codigo
+        }
+    })
+})
+
 // ── INIT ──────────────────────────────────────────────────────
 cargarProductos()
 renderCarrito()

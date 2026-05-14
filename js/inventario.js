@@ -262,4 +262,75 @@ function limpiarForm() {
     productoEditando  = null
 }
 
+
+// ── ESCÁNER CÓDIGO DE BARRAS ──────────────────────────────────
+var escanerActivo   = false
+var escanerCallback = null
+
+function iniciarEscaner(callback) {
+    escanerCallback = callback
+    escanerActivo   = false
+    document.getElementById("escanerStatus").textContent = "Iniciando cámara..."
+    document.getElementById("modalEscaner").classList.add("active")
+
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.getElementById("escaner-viewport"),
+            constraints: {
+                facingMode: "environment",
+                width:  { min: 300 },
+                height: { min: 200 }
+            }
+        },
+        decoder: {
+            readers: [
+                "ean_reader",
+                "ean_8_reader",
+                "code_128_reader",
+                "code_39_reader",
+                "upc_reader",
+                "upc_e_reader"
+            ]
+        },
+        locate: true
+    }, function(err) {
+        if (err) {
+            document.getElementById("escanerStatus").textContent = "Error al acceder a la cámara"
+            console.error(err)
+            return
+        }
+        Quagga.start()
+        document.getElementById("escanerStatus").textContent = "Listo — apunta al código"
+    })
+
+    Quagga.onDetected(function(result) {
+        if (escanerActivo) return
+        const codigo = result.codeResult.code
+        if (!codigo) return
+        escanerActivo = true
+
+        // Vibrar si el celular lo soporta
+        if (navigator.vibrate) navigator.vibrate(100)
+
+        detenerEscaner()
+
+        if (escanerCallback) escanerCallback(codigo)
+    })
+}
+
+function detenerEscaner() {
+    try { Quagga.stop() } catch(e) {}
+    document.getElementById("modalEscaner").classList.remove("active")
+}
+
+document.getElementById("cerrarEscaner").addEventListener("click", detenerEscaner)
+
+document.getElementById("btnEscanerInventario").addEventListener("click", function() {
+    iniciarEscaner(function(codigo) {
+        document.getElementById("codigo").value = codigo
+    })
+})
+
 cargarProductos()

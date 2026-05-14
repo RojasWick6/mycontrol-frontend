@@ -876,3 +876,34 @@ padding:10px;
         height: 110px;
     }
 }
+
+/* MODAL ESCÁNER */
+#modalEscaner {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#modalEscaner.active {
+    display: flex;
+}
+
+#modalEscaner .modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+#modalEscaner h2 {
+    font-size: 18px;
+    color: #333;
+    margin: 0 0 4px 0;
+}
