@@ -17,3 +17,11 @@ const EMPRESA_ID     = SESSION ? SESSION.empresa_id  : null
 const USUARIO_ID     = SESSION ? SESSION.id          : null
 const USUARIO_ROL    = SESSION ? SESSION.rol         : null
 const USUARIO_NOMBRE = SESSION ? SESSION.nombre      : null
+const ES_ADMIN       = USUARIO_ROL === "admin"
+
+// Proteger páginas según rol
+function protegerPorRol(soloAdmin) {
+    if (soloAdmin && !ES_ADMIN) {
+        window.location.href = "ventas.html"
+    }
+}

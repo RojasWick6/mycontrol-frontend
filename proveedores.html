@@ -69,6 +69,11 @@
 
 <script src="js/config.js"></script>
 <script src="js/session.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!ES_ADMIN) window.location.href = "ventas.html"
+    })
+</script>
 <script src="js/dashboard.js"></script>
 <script src="js/proveedores.js"></script>
 <script src="js/theme.js"></script>

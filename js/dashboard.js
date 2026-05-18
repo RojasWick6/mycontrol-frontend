@@ -50,8 +50,56 @@ document.addEventListener("DOMContentLoaded", () => {
             ">Salir</button>
         `
         topbar.appendChild(badge)
+
+        if (ES_ADMIN) {    
+            cargarSolicitudesPendientes()
+        }
     }
-})
+
+    // ── AQUÍ PEGAS LA NUEVA INSTRUCCIÓN (Justo antes de cerrar el DOMContentLoaded) ──
+    // Ocultar menú items según rol
+    if (!ES_ADMIN) {
+        var itemsRestringidos = ["compras.html", "proveedores.html", "reportes.html", "configuracion.html"]
+        document.querySelectorAll(".menu-item").forEach(function(item) {
+            itemsRestringidos.forEach(function(pagina) {
+                if (item.href && item.href.includes(pagina)) {
+                    item.style.display = "none"
+                }
+            })
+        })
+    }
+}) // <--- Asegúrate de que quede ANTES de esta llave y paréntesis de cierre
+
+// ── ESTA FUNCIÓN VA SUELTA AQUÍ ABAJO (Fuera del DOMContentLoaded) ──
+async function cargarSolicitudesPendientes() {    
+    try {        
+        const res    = await fetch(API + "/solicitudes-cancelacion?empresa_id=" + EMPRESA_ID)        
+        const datos  = await res.json()        
+        if (datos.length === 0) return        
+        
+        const topbar = document.querySelector(".topbar")        
+        if (!topbar) return        
+        
+        const alerta = document.createElement("a")        
+        alerta.href  = "ventas-historial.html"        
+        alerta.style.cssText = `            
+            background:#e74c3c;            
+            color:white;            
+            padding:6px 12px;            
+            border-radius:8px;            
+            font-size:13px;            
+            font-weight:700;            
+            text-decoration:none;            
+            display:flex;            
+            align-items:center;            
+            gap:6px;        
+        `        
+        alerta.innerHTML = "🔔 " + datos.length + " solicitud" + (datos.length > 1 ? "es" : "")        
+        topbar.insertBefore(alerta, topbar.lastElementChild)    
+    } catch(err) {        
+        console.error("Error solicitudes:", err)    
+    }
+}
 
 // ── TIEMPO TRANSCURRIDO ───────────────────────────────────────
 function tiempoTranscurrido(fechaStr) {
