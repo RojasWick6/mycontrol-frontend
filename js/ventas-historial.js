@@ -26,29 +26,39 @@ function filtrarPor(periodo) {
     var map  = { hoy: 0, ayer: 1, semana: 2, mes: 3, todo: 4 }
     if (map[periodo] !== undefined) btns[map[periodo]].classList.add("active")
 
-    const hoy    = new Date()
-    const hoyStr = hoy.toLocaleDateString("sv-SE")
+    const ahora  = new Date()
+    const hoyStr = ahora.toLocaleDateString("sv-SE") // YYYY-MM-DD local
 
     var filtradas = todasLasVentas.filter(function(v) {
-        const fechaVenta = v.fecha.split(" ")[0]
-        const d          = new Date(v.fecha.replace(" ", "T"))
+        // Convertir fecha del servidor (viene como "2026-05-18 20:07:00")
+        // al agregar Z lo tratamos como UTC y convertimos a local
+        const fechaLocal = new Date(v.fecha.replace(" ", "T") + "Z")
+        const fechaStr   = fechaLocal.toLocaleDateString("sv-SE")
 
-        if (periodo === "hoy")   return fechaVenta === hoyStr
+        if (periodo === "hoy") {
+            return fechaStr === hoyStr
+        }
+
         if (periodo === "ayer") {
-            const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1)
-            return fechaVenta === ayer.toLocaleDateString("sv-SE")
+            const ayer = new Date(ahora)
+            ayer.setDate(ahora.getDate() - 1)
+            return fechaStr === ayer.toLocaleDateString("sv-SE")
         }
+
         if (periodo === "semana") {
-            const lunes = new Date(hoy)
-            lunes.setDate(hoy.getDate() - hoy.getDay() + 1)
+            const lunes = new Date(ahora)
+            const dia   = ahora.getDay() || 7 // domingo = 7
+            lunes.setDate(ahora.getDate() - dia + 1)
             lunes.setHours(0, 0, 0, 0)
-            return d >= lunes
+            return fechaLocal >= lunes
         }
+
         if (periodo === "mes") {
-            return d.getMonth() === hoy.getMonth() &&
-                   d.getFullYear() === hoy.getFullYear()
+            return fechaLocal.getMonth()    === ahora.getMonth() &&
+                   fechaLocal.getFullYear() === ahora.getFullYear()
         }
-        return true
+
+        return true // todo
     })
 
     renderVentas(filtradas)
@@ -60,10 +70,13 @@ function filtrarPorFecha(fecha) {
         b.classList.remove("active")
     })
     var filtradas = todasLasVentas.filter(function(v) {
-        return v.fecha.startsWith(fecha)
+        const fechaLocal = new Date(v.fecha.replace(" ", "T") + "Z")
+        const fechaStr   = fechaLocal.toLocaleDateString("sv-SE")
+        return fechaStr === fecha
     })
     renderVentas(filtradas)
 }
+
 
 // ── RENDER ────────────────────────────────────────────────────
 function renderVentas(ventas) {
