@@ -1,64 +1,157 @@
-const ventasList = document.getElementById("ventasList")
-const filtro     = document.getElementById("filtroHistorial")
+let todasLasVentas  = []
+let filtroActual    = "hoy"
 
-let todasLasVentas = []
-
+// ── CARGAR VENTAS ─────────────────────────────────────────────
 async function cargarVentas() {
+    mostrarLoading("Cargando historial...")
     try {
         const res      = await fetch(API + "/ventas?empresa_id=" + EMPRESA_ID)
         todasLasVentas = await res.json()
-        renderVentas(todasLasVentas)
+        filtrarPor("hoy")
     } catch (err) {
         console.error("Error al cargar ventas:", err)
+    } finally {
+        ocultarLoading()
     }
 }
 
+// ── FILTROS ───────────────────────────────────────────────────
+function filtrarPor(periodo) {
+    filtroActual = periodo
+
+    document.querySelectorAll(".filtro-btn").forEach(function(b) {
+        b.classList.remove("active")
+    })
+    var btns = document.querySelectorAll(".filtro-btn")
+    var map  = { hoy: 0, ayer: 1, semana: 2, mes: 3, todo: 4 }
+    if (map[periodo] !== undefined) btns[map[periodo]].classList.add("active")
+
+    const hoy    = new Date()
+    const hoyStr = hoy.toLocaleDateString("sv-SE")
+
+    var filtradas = todasLasVentas.filter(function(v) {
+        const fechaVenta = v.fecha.split(" ")[0]
+        const d          = new Date(v.fecha.replace(" ", "T"))
+
+        if (periodo === "hoy")   return fechaVenta === hoyStr
+        if (periodo === "ayer") {
+            const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1)
+            return fechaVenta === ayer.toLocaleDateString("sv-SE")
+        }
+        if (periodo === "semana") {
+            const lunes = new Date(hoy)
+            lunes.setDate(hoy.getDate() - hoy.getDay() + 1)
+            lunes.setHours(0, 0, 0, 0)
+            return d >= lunes
+        }
+        if (periodo === "mes") {
+            return d.getMonth() === hoy.getMonth() &&
+                   d.getFullYear() === hoy.getFullYear()
+        }
+        return true
+    })
+
+    renderVentas(filtradas)
+}
+
+function filtrarPorFecha(fecha) {
+    if (!fecha) return
+    document.querySelectorAll(".filtro-btn").forEach(function(b) {
+        b.classList.remove("active")
+    })
+    var filtradas = todasLasVentas.filter(function(v) {
+        return v.fecha.startsWith(fecha)
+    })
+    renderVentas(filtradas)
+}
+
+// ── RENDER ────────────────────────────────────────────────────
 function renderVentas(ventas) {
-    ventasList.innerHTML = ""
+    const contenedor = document.getElementById("ventasLista")
+    contenedor.innerHTML = ""
+
+    // Actualizar resumen
+    const totalNum   = ventas.length
+    const totalMonto = ventas.reduce(function(acc, v) { return acc + parseFloat(v.total) }, 0)
+    document.getElementById("resumenNum").textContent   = totalNum
+    document.getElementById("resumenTotal").textContent = "$" + totalMonto.toFixed(2)
 
     if (ventas.length === 0) {
-        ventasList.innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align:center;color:#aaa;padding:30px">
-                    No hay ventas registradas
-                </td>
-            </tr>`
+        contenedor.innerHTML =
+            '<div style="text-align:center;padding:40px;color:#aaa;background:white;border-radius:12px">' +
+            '<p style="font-size:32px">🧾</p>' +
+            '<p style="margin-top:8px">No hay ventas en este período</p>' +
+            '</div>'
         return
     }
 
     ventas.forEach(function(venta) {
-        const fecha = new Date(venta.fecha).toLocaleDateString("es-MX", {
-            day: "2-digit", month: "short", year: "numeric",
+        const fecha = new Date(venta.fecha.replace(" ", "T") + "Z")
+        const fechaStr = fecha.toLocaleDateString("es-MX", {
+            weekday: "short", day: "numeric", month: "short", year: "numeric"
+        })
+        const horaStr = fecha.toLocaleTimeString("es-MX", {
             hour: "2-digit", minute: "2-digit"
         })
 
         const accion = ES_ADMIN
-            ? '<button onclick="cancelarVenta(' + venta.id + ')" style="' +
-              'background:#fdecea;color:#e74c3c;border:none;padding:6px 12px;' +
-              'border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">' +
-              '🗑️ Cancelar</button>'
-            : '<button onclick="solicitarCancelacion(' + venta.id + ', ' + venta.total + ')" style="' +
-              'background:#fff3e0;color:#e65100;border:none;padding:6px 12px;' +
-              'border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">' +
-              '📩 Solicitar</button>'
+            ? '<button onclick="cancelarVenta(' + venta.id + ')" class="btn-cancelar-venta">🗑️ Cancelar</button>'
+            : '<button onclick="solicitarCancelacion(' + venta.id + ', ' + venta.total + ')" class="btn-solicitar-cancelar">📩 Solicitar</button>'
 
-        const fila = document.createElement("tr")
-        fila.innerHTML =
-            "<td>#" + venta.id + "</td>" +
-            "<td>" + fecha + "</td>" +
-            "<td>" + (venta.metodo_pago || "—") + "</td>" +
-            '<td style="text-align:right;font-weight:600">$' + parseFloat(venta.total).toFixed(2) + "</td>" +
-            "<td>" + accion + "</td>"
-        ventasList.appendChild(fila)
+        const card = document.createElement("div")
+        card.className = "venta-card-historial"
+        card.innerHTML =
+            '<div class="venta-card-top">' +
+                '<div class="venta-card-fecha">' +
+                    '<span class="fecha-dia">' + fechaStr + '</span>' +
+                    '<span class="fecha-hora">🕐 ' + horaStr + '</span>' +
+                '</div>' +
+                '<div class="venta-card-monto">$' + parseFloat(venta.total).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="venta-card-mid">' +
+                '<span class="venta-metodo">' + (venta.metodo_pago || "efectivo") + '</span>' +
+                '<span class="venta-id">#' + venta.id + '</span>' +
+            '</div>' +
+            '<div class="venta-productos" id="productos-' + venta.id + '">' +
+                '<span style="color:#aaa;font-size:12px">Cargando productos...</span>' +
+            '</div>' +
+            '<div class="venta-card-bottom">' + accion + '</div>'
+
+        contenedor.appendChild(card)
+        cargarDetalleVenta(venta.id)
     })
 }
 
-// ── ADMIN: CANCELAR VENTA ─────────────────────────────────────
+// ── DETALLE PRODUCTOS ─────────────────────────────────────────
+async function cargarDetalleVenta(venta_id) {
+    try {
+        const res    = await fetch(API + "/ventas/" + venta_id + "/detalle")
+        const items  = await res.json()
+        const el     = document.getElementById("productos-" + venta_id)
+        if (!el) return
+
+        if (items.length === 0) {
+            el.innerHTML = '<span style="color:#aaa;font-size:12px">Sin detalle</span>'
+            return
+        }
+
+        el.innerHTML = items.map(function(item) {
+            return '<span class="producto-tag">' +
+                item.nombre + ' x' + item.cantidad +
+                '</span>'
+        }).join("")
+    } catch (err) {
+        const el = document.getElementById("productos-" + venta_id)
+        if (el) el.innerHTML = ""
+    }
+}
+
+// ── CANCELAR VENTA (admin) ────────────────────────────────────
 async function cancelarVenta(id) {
     if (!confirm("¿Cancelar esta venta? Se restaurará el stock automáticamente.")) return
     try {
         mostrarLoading("Cancelando venta...")
-        const res = await fetch(API + "/ventas/" + id, { method: "DELETE" })
+        const res  = await fetch(API + "/ventas/" + id, { method: "DELETE" })
         const data = await res.json()
         if (data.ok) {
             alert("✅ Venta cancelada y stock restaurado")
@@ -71,7 +164,7 @@ async function cancelarVenta(id) {
     }
 }
 
-// ── EMPLEADO: SOLICITAR CANCELACIÓN ──────────────────────────
+// ── SOLICITAR CANCELACIÓN (empleado) ─────────────────────────
 async function solicitarCancelacion(venta_id, total) {
     const motivo = prompt(
         "Venta #" + venta_id + " — $" + parseFloat(total).toFixed(2) +
@@ -80,10 +173,10 @@ async function solicitarCancelacion(venta_id, total) {
     if (!motivo || motivo.trim() === "") return
 
     try {
-        const res = await fetch(API + "/solicitudes-cancelacion", {
+        const res  = await fetch(API + "/solicitudes-cancelacion", {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            body:    JSON.stringify({
                 venta_id,
                 empresa_id: EMPRESA_ID,
                 usuario_id: USUARIO_ID,
@@ -91,47 +184,43 @@ async function solicitarCancelacion(venta_id, total) {
             })
         })
         const data = await res.json()
-        if (data.id) {
-            alert("✅ Solicitud enviada. El admin revisará tu petición.")
-        }
+        if (data.id) alert("✅ Solicitud enviada. El admin revisará tu petición.")
     } catch (err) {
         alert("Error al enviar solicitud")
     }
 }
 
-// ── ADMIN: VER SOLICITUDES PENDIENTES ─────────────────────────
+// ── SOLICITUDES PENDIENTES (admin) ────────────────────────────
 async function cargarSolicitudes() {
     if (!ES_ADMIN) return
-
     try {
         const res   = await fetch(API + "/solicitudes-cancelacion?empresa_id=" + EMPRESA_ID)
         const datos = await res.json()
-
-        const contenedor = document.getElementById("solicitudesList")
-        if (!contenedor) return
+        const cont  = document.getElementById("solicitudesList")
+        if (!cont) return
 
         if (datos.length === 0) {
-            contenedor.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px">Sin solicitudes pendientes</p>'
+            cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px">Sin solicitudes pendientes</p>'
             return
         }
 
-        contenedor.innerHTML = ""
+        cont.innerHTML = ""
         datos.forEach(function(s) {
             const div = document.createElement("div")
             div.style.cssText = "background:#fff8f0;border:1px solid #FFE0B2;border-radius:10px;padding:14px;margin-bottom:10px"
             div.innerHTML =
-                '<div style="display:flex;justify-content:space-between;align-items:start;gap:10px">' +
+                '<div style="display:flex;justify-content:space-between;align-items:start;gap:10px;flex-wrap:wrap">' +
                     '<div>' +
                         '<p style="font-weight:700;color:#333">Venta #' + s.venta_id + ' — $' + parseFloat(s.total).toFixed(2) + '</p>' +
-                        '<p style="font-size:13px;color:#888;margin-top:2px">Solicitado por: ' + s.solicitado_por + '</p>' +
+                        '<p style="font-size:13px;color:#888;margin-top:2px">Por: ' + s.solicitado_por + '</p>' +
                         '<p style="font-size:13px;color:#555;margin-top:4px">Motivo: ' + s.motivo + '</p>' +
                     '</div>' +
-                    '<div style="display:flex;gap:8px;flex-shrink:0">' +
-                        '<button onclick="responderSolicitud(' + s.id + ', ' + s.venta_id + ', true)" style="background:#27ae60;color:white;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">✅ Aprobar</button>' +
-                        '<button onclick="responderSolicitud(' + s.id + ', ' + s.venta_id + ', false)" style="background:#eee;color:#555;border:none;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">❌ Rechazar</button>' +
+                    '<div style="display:flex;gap:8px">' +
+                        '<button onclick="responderSolicitud(' + s.id + ',' + s.venta_id + ',true)" style="background:#27ae60;color:white;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">✅ Aprobar</button>' +
+                        '<button onclick="responderSolicitud(' + s.id + ',' + s.venta_id + ',false)" style="background:#eee;color:#555;border:none;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">❌ Rechazar</button>' +
                     '</div>' +
                 '</div>'
-            contenedor.appendChild(div)
+            cont.appendChild(div)
         })
     } catch (err) {
         console.error("Error solicitudes:", err)
@@ -140,24 +229,20 @@ async function cargarSolicitudes() {
 
 async function responderSolicitud(solicitud_id, venta_id, aprobar) {
     try {
-        mostrarLoading(aprobar ? "Cancelando venta..." : "Rechazando solicitud...")
-
+        mostrarLoading(aprobar ? "Cancelando venta..." : "Rechazando...")
         if (aprobar) {
-            const res = await fetch(API + "/ventas/" + venta_id, { method: "DELETE" })
+            const res  = await fetch(API + "/ventas/" + venta_id, { method: "DELETE" })
             const data = await res.json()
             if (!data.ok) { alert("Error al cancelar venta"); return }
         }
-
         await fetch(API + "/solicitudes-cancelacion/" + solicitud_id, {
             method:  "PUT",
             headers: { "Content-Type": "application/json" },
             body:    JSON.stringify({ estado: aprobar ? "aprobada" : "rechazada" })
         })
-
-        alert(aprobar ? "✅ Venta cancelada y stock restaurado" : "Solicitud rechazada")
+        alert(aprobar ? "✅ Venta cancelada" : "Solicitud rechazada")
         await cargarVentas()
         await cargarSolicitudes()
-
     } catch (err) {
         alert("Error al procesar solicitud")
     } finally {
@@ -165,19 +250,7 @@ async function responderSolicitud(solicitud_id, venta_id, aprobar) {
     }
 }
 
-if (filtro) {
-    filtro.addEventListener("input", function() {
-        const texto = filtro.value.toLowerCase()
-        const filtradas = todasLasVentas.filter(function(v) {
-            return String(v.id).includes(texto) ||
-                v.fecha.toLowerCase().includes(texto) ||
-                (v.metodo_pago && v.metodo_pago.toLowerCase().includes(texto))
-        })
-        renderVentas(filtradas)
-    })
-}
-
-// Mostrar sección solicitudes solo a admin
+// ── INIT ──────────────────────────────────────────────────────
 if (ES_ADMIN) {
     const sec = document.getElementById("seccionSolicitudes")
     if (sec) sec.style.display = "block"

@@ -1,117 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Historial de Ventas</title>
-
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/variables.css">
-<link rel="stylesheet" href="css/ventas-historial.css">
-<link rel="stylesheet" href="css/dashboard.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Ventas</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/ventas-historial.css">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
-
 <body>
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
     <p class="loading-texto">Cargando...</p>
 </div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="dashboard-layout">
 
-<!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="logo">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item active" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
 
-<aside class="sidebar" id="sidebar">
+    <main class="main-content">
 
-<div class="sidebar-header">
-<img src="assets/img/logo.png" class="logo" alt="logo">
-<h2>MyControl</h2>
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <div class="historial-topbar">
+                <a href="ventas.html" class="btn-regresar">← Volver</a>
+                <h1>Historial de <span>Ventas</span></h1>
+            </div>
+        </header>
+
+        <!-- FILTROS DE FECHA -->
+        <div class="historial-filtros">
+            <button class="filtro-btn active" onclick="filtrarPor('hoy')">Hoy</button>
+            <button class="filtro-btn" onclick="filtrarPor('ayer')">Ayer</button>
+            <button class="filtro-btn" onclick="filtrarPor('semana')">Esta semana</button>
+            <button class="filtro-btn" onclick="filtrarPor('mes')">Este mes</button>
+            <button class="filtro-btn" onclick="filtrarPor('todo')">Todo</button>
+            <input type="date" id="filtroFecha" onchange="filtrarPorFecha(this.value)"
+                style="padding:8px 12px;border-radius:8px;border:2px solid #eee;font-size:14px;outline:none">
+        </div>
+
+        <!-- RESUMEN DEL PERÍODO -->
+        <div class="historial-resumen" id="historialResumen">
+            <div class="resumen-item">
+                <span class="resumen-label">Ventas</span>
+                <span class="resumen-valor" id="resumenNum">0</span>
+            </div>
+            <div class="resumen-item">
+                <span class="resumen-label">Total</span>
+                <span class="resumen-valor naranja" id="resumenTotal">$0.00</span>
+            </div>
+        </div>
+
+        <!-- LISTA DE VENTAS -->
+        <div class="ventas-lista" id="ventasLista"></div>
+
+        <!-- SOLICITUDES PENDIENTES (solo admin) -->
+        <section id="seccionSolicitudes" style="display:none;margin-top:24px">
+            <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.05)">
+                <h2 style="font-size:16px;color:#333;margin-bottom:16px">🔔 Solicitudes de cancelación</h2>
+                <div id="solicitudesList"></div>
+            </div>
+        </section>
+
+    </main>
 </div>
 
-<nav class="menu">
-
-<a class="menu-item" href="dashboard.html">
-<span class="icon">🏠</span>
-<span class="text">Inicio</span>
-</a>
-
-<a class="menu-item" href="inventario.html">
-<span class="icon">📦</span>
-<span class="text">Inventario</span>
-</a>
-
-<a class="menu-item active" href="ventas.html">
-<span class="icon">💰</span>
-<span class="text">Ventas</span>
-</a>
-
-<a class="menu-item" href="compras.html">
-<span class="icon">🧾</span>
-<span class="text">Compras</span>
-</a>
-
-<a class="menu-item" href="proveedores.html">
-<span class="icon">👥</span>
-<span class="text">Proveedores</span>
-</a>
-
-<a class="menu-item" href="reportes.html">
-<span class="icon">📊</span>
-<span class="text">Reportes</span>
-</a>
-
-<a class="menu-item" href="configuracion.html">
-<span class="icon">⚙</span>
-<span class="text">Configuración</span>
-</a>
-
-</nav>
-
-</aside>
-
-<!-- CONTENIDO -->
-
-<main class="main-content">
-    <div class="historial-header">
-        <div class="header-left">
-            <a href="ventas.html" class="btn-regresar">
-                <span>←</span> Volver a Ventas
-            </a>
-            <h1>Historial de <span>Ventas</span></h1>
-        </div>
-        
-        <div class="header-tools">
-            <input type="text" id="filtroHistorial" placeholder="Buscar por ID o fecha...">
-        </div>
-    </div>
-
-    <section class="table-container">
-        <table class="ventas-table">
-            <thead>
-                <tr>
-                    <th>ID Transacción</th>
-                    <th>Fecha y Hora</th>
-                    <th>Método de Pago</th>
-                    <th class="text-right">Total Facturado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="ventasList">
-                </tbody>
-        </table>
-    </section>
-
-    <!-- SOLICITUDES PENDIENTES (solo admin) -->
-<section id="seccionSolicitudes" style="display:none;margin-top:24px">
-    <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.05)">
-        <h2 style="font-size:16px;color:#333;margin-bottom:16px">🔔 Solicitudes de cancelación</h2>
-        <div id="solicitudesList"></div>
-    </div>
-</section>
-</main>
-
-</div>
 <script src="js/config.js"></script>
 <script src="js/session.js"></script>
 <script src="js/dashboard.js"></script>
