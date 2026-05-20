@@ -323,7 +323,7 @@ flex-direction:column;
     border-color: var(--primary, #FF8500) !important;
 }
 
-.modal-content button {
+.modal-btns button {
     padding: 12px;
     border-radius: 10px;
     border: none;

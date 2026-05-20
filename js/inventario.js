@@ -161,26 +161,39 @@ cerrarModalBtn.addEventListener("click", cerrarModal)
 saveBtn.addEventListener("click", async function() {
     const nombre = nombreInput.value.trim()
     const codigo = codigoInput.value.trim()
-    const precio = precioInput.value
-    const stock  = stockInput.value
+    const precio = parseFloat(precioInput.value)
+    const stock  = parseInt(stockInput.value)
 
-    if (!nombre || !precio || !stock) {
-        alert("Nombre, precio y stock son obligatorios")
+    // Validaciones
+    if (!nombre) {
+        alert("El nombre del producto es obligatorio")
+        nombreInput.focus()
+        return
+    }
+    if (isNaN(precio) || precio < 0) {
+        alert("El precio no puede ser negativo")
+        precioInput.value = ""
+        precioInput.focus()
+        return
+    }
+    if (isNaN(stock) || stock < 0) {
+        alert("El stock no puede ser negativo")
+        stockInput.value = ""
+        stockInput.focus()
         return
     }
 
+    const body = { nombre, codigo, precio, stock }
+    if (imagenSubida) body.imagen_url = imagenSubida
+
     try {
         if (productoEditando) {
-            const body = { nombre, codigo, precio, stock }
-            if (imagenSubida) body.imagen_url = imagenSubida
-
             const res         = await fetch(API + "/productos/" + productoEditando, {
                 method:  "PUT",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify(body)
             })
             const actualizado = await res.json()
-
             const idx = productos.findIndex(function(p) { return p.id === productoEditando })
             if (idx !== -1) {
                 if (!imagenSubida && productos[idx].imagen_url) {
@@ -188,31 +201,20 @@ saveBtn.addEventListener("click", async function() {
                 }
                 productos[idx] = actualizado
             }
-
         } else {
-            const bodyPost = {
-                empresa_id: EMPRESA_ID,
-                nombre, codigo, precio, stock
-            }
+            const bodyPost = { empresa_id: EMPRESA_ID, nombre, codigo, precio, stock }
             if (imagenSubida) bodyPost.imagen_url = imagenSubida
-
             const res   = await fetch(API + "/productos", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify(bodyPost)
             })
             const nuevo = await res.json()
-
-            if (imagenSubida && !nuevo.imagen_url) {
-                nuevo.imagen_url = imagenSubida
-            }
-
+            if (imagenSubida && !nuevo.imagen_url) nuevo.imagen_url = imagenSubida
             productos.push(nuevo)
         }
-
         cerrarModal()
         renderProductos(productos)
-
     } catch (err) {
         alert("Error al guardar producto")
         console.error(err)

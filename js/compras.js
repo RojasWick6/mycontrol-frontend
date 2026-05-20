@@ -93,14 +93,28 @@ function renderCarrito() {
     totalSpan.textContent = total.toFixed(2)
 }
 
-function actualizarCantidad(id, val) {
-    const item = carrito.find(p => p.id === id)
-    if (item) { item.cantidad = parseInt(val) || 1; renderCarrito() }
+function actualizarPrecio(id, val) {
+    const item = carrito.find(function(p) { return p.id === id })
+    if (!item) return
+    const precio = parseFloat(val)
+    if (isNaN(precio) || precio < 0) {
+        alert("El precio no puede ser negativo")
+        return
+    }
+    item.precio_compra = val
+    renderCarrito()
 }
 
-function actualizarPrecio(id, val) {
-    const item = carrito.find(p => p.id === id)
-    if (item) { item.precio_compra = val; renderCarrito() }
+function actualizarCantidad(id, val) {
+    const item = carrito.find(function(p) { return p.id === id })
+    if (!item) return
+    const cantidad = parseInt(val)
+    if (isNaN(cantidad) || cantidad < 1) {
+        alert("La cantidad debe ser al menos 1")
+        return
+    }
+    item.cantidad = cantidad
+    renderCarrito()
 }
 
 function quitarDelCarrito(id) {

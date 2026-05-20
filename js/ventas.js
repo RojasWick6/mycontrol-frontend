@@ -197,12 +197,12 @@ function cambiarCantidad(id, delta) {
 
     if (delta > 0) {
         if (producto.stock <= 0) {
-            alert("Sin stock disponible")
+            alert("⚠️ " + producto.nombre + " no tiene stock disponible")
             return
         }
         if (existe) {
             if (existe.cantidad >= producto.stock) {
-                alert("Stock máximo alcanzado: " + producto.stock + " unidades")
+                alert("⚠️ Stock máximo: " + producto.stock + " unidades disponibles de " + producto.nombre)
                 return
             }
             existe.cantidad++
