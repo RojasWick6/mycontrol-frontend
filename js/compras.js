@@ -145,12 +145,13 @@ btnRegistrar.addEventListener("click", async () => {
     }
 })
 
+// 🔥 Control de modales modificado para usar clases activas
 btnNuevo.addEventListener("click", () => {
-    modal.style.display = "flex"
+    modal.classList.add("active")
 })
 
 btnCerrar.addEventListener("click", () => {
-    modal.style.display = "none"
+    modal.classList.remove("active")
     formProveedor.reset()
 })
 
@@ -171,7 +172,7 @@ formProveedor.addEventListener("submit", async (e) => {
         const nuevo = await res.json()
         await cargarProveedores()
         selectProveedor.value = nuevo.id
-        modal.style.display = "none"
+        modal.classList.remove("active") // 🔥 Cambiado
         formProveedor.reset()
     } catch (err) {
         alert("Error al guardar proveedor")

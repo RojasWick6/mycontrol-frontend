@@ -107,16 +107,36 @@
 <!-- MODAL USUARIO -->
 <div class="modal" id="usuarioModal">
     <div class="modal-content">
-        <h2 id="modalUsuarioTitulo">Nuevo usuario</h2>
-        <input type="text" id="uNombre" placeholder="Nombre completo">
-        <input type="email" id="uEmail" placeholder="Email">
-        <input type="password" id="uPassword" placeholder="Contraseña">
-        <select id="uRol">
-            <option value="admin">Admin</option>
-            <option value="vendedor">Vendedor</option>
-        </select>
-        <button id="btnGuardarUsuario">Guardar</button>
-        <button id="btnCerrarUsuario" style="background:#aaa; margin-top:8px">Cancelar</button>
+        <h2 id="modalUsuarioTitulo">👤 Nuevo usuario</h2>
+        <p style="font-size:13px;color:#aaa;margin-top:-6px;margin-bottom:8px">
+            Completa los datos del usuario
+        </p>
+
+        <div class="modal-field">
+            <label>Nombre completo</label>
+            <input type="text" id="uNombre" placeholder="Ej: María García">
+        </div>
+
+        <div class="modal-field">
+            <label>Correo electrónico</label>
+            <input type="email" id="uEmail" placeholder="correo@ejemplo.com">
+        </div>
+
+        <div class="modal-field" id="campoPassword">
+            <label>Contraseña</label>
+            <input type="password" id="uPassword" placeholder="Mínimo 6 caracteres">
+        </div>
+
+        <div class="modal-field">
+            <label>Rol</label>
+            <select id="uRol">
+                <option value="admin">👑 Admin — acceso completo</option>
+                <option value="vendedor">🛒 Vendedor — solo ventas e inventario</option>
+            </select>
+        </div>
+
+        <button id="btnGuardarUsuario">Guardar usuario</button>
+        <button id="btnCerrarUsuario">Cancelar</button>
     </div>
 </div>
 

@@ -241,3 +241,94 @@
         overflow: hidden;
     }
 }
+
+/* MODAL USUARIOS MEJORADO */
+#usuarioModal .modal-content {
+    max-width: 440px;
+}
+
+#usuarioModal h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+#usuarioModal input,
+#usuarioModal select {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+    color: #333;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+#usuarioModal input:focus,
+#usuarioModal select:focus {
+    border-color: var(--primary, #FF8500);
+}
+
+#usuarioModal select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+#btnGuardarUsuario {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: var(--primary, #FF8500);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+#btnGuardarUsuario:hover {
+    background: #e07600;
+    transform: scale(1.01);
+}
+
+#btnCerrarUsuario {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #f0f0f0;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+#btnCerrarUsuario:hover {
+    background: #e0e0e0;
+}
+
+/* LABEL FLOTANTE EFECTO */
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    padding-left: 4px;
+}

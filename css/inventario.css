@@ -394,3 +394,163 @@
         padding: 8px 12px;
     }
 }
+
+/* TABLA RESPONSIVA SIN SCROLL HORIZONTAL */
+@media (max-width: 768px) {
+    .product-table thead {
+        display: none;
+    }
+
+    .product-table tr {
+        display: block;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .product-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 14px;
+        white-space: normal;
+    }
+
+    .product-table td:last-child {
+        border-bottom: none;
+        padding-top: 10px;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .product-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #888;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+}
+
+/* =========================
+   TABLA RESPONSIVA
+========================= */
+
+.product-table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.product-table th{
+    background:#f8f8f8;
+    padding:14px;
+    text-align:left;
+    font-size:14px;
+    color:#666;
+}
+
+.product-table td{
+    padding:14px;
+    border-top:1px solid #eee;
+    font-size:14px;
+    word-break:break-word;
+}
+
+/* BOTONES */
+.product-table td button{
+    border:none;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    margin-right:5px;
+}
+
+.btn-edit{
+    background:#ffb74d;
+}
+
+.btn-delete{
+    background:#ef5350;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:700px){
+
+    .product-table,
+    .product-table thead,
+    .product-table tbody,
+    .product-table th,
+    .product-table td,
+    .product-table tr{
+        display:block;
+        width:100%;
+    }
+
+    .product-table thead{
+        display:none;
+    }
+
+    .product-table tr{
+        background:white;
+        margin-bottom:16px;
+        border-radius:16px;
+        padding:14px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .product-table td{
+        border:none;
+        padding:8px 0;
+
+        display:flex;
+        flex-direction:column;
+        align-items:flex-start;
+
+        text-align:left;
+    }
+
+    .product-table td::before{
+        font-weight:700;
+        color:#888;
+        margin-bottom:4px;
+        font-size:13px;
+    }
+
+    .product-table td:nth-child(1)::before{
+        content:"Nombre";
+    }
+
+    .product-table td:nth-child(2)::before{
+        content:"Teléfono";
+    }
+
+    .product-table td:nth-child(3)::before{
+        content:"Email";
+    }
+
+    .product-table td:nth-child(4)::before{
+        content:"Registro";
+    }
+
+    .product-table td:nth-child(5)::before{
+        content:"Acciones";
+    }
+
+    .product-table td:last-child{
+        flex-direction:row;
+        gap:8px;
+        margin-top:10px;
+    }
+}

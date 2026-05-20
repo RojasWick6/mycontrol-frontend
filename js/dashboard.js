@@ -22,10 +22,12 @@ menuItems.forEach(item => {
     })
 })
 
-// Mostrar usuario en topbar
+// Mostrar usuario y Reloj en topbar
 document.addEventListener("DOMContentLoaded", () => {
     const topbar = document.querySelector(".topbar")
+    
     if (topbar && USUARIO_NOMBRE) {
+        // 1. Crear y agregar Badge del Usuario
         const badge = document.createElement("div")
         badge.style.cssText = `
             margin-left:auto;
@@ -51,12 +53,40 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         topbar.appendChild(badge)
 
+        const relojEl = document.createElement("div")
+        relojEl.id    = "relojTopbar"
+        relojEl.style.cssText = `
+            margin-left: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            line-height: 1.3;
+            flex-shrink: 0;
+        `
+        // Inserta el reloj de manera ordenada en la barra
+        topbar.insertBefore(relojEl, topbar.lastElementChild)
+
+        function actualizarReloj() {
+            const ahora  = new Date()
+            const hora   = ahora.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+            const fecha  = ahora.toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })
+            relojEl.innerHTML =
+                '<span style="font-size:15px;color:#FF8500;font-weight:700">' + hora + '</span>' +
+                '<span style="font-size:11px;color:#aaa;text-transform:capitalize">' + fecha + '</span>'
+        }
+        
+        actualizarReloj()
+        setInterval(actualizarReloj, 1000)
+
+        // 3. Cargar solicitudes si es Admin
         if (ES_ADMIN) {    
             cargarSolicitudesPendientes()
         }
     }
 
-    // ── AQUÍ PEGAS LA NUEVA INSTRUCCIÓN (Justo antes de cerrar el DOMContentLoaded) ──
     // Ocultar menú items según rol
     if (!ES_ADMIN) {
         var itemsRestringidos = ["compras.html", "proveedores.html", "reportes.html", "configuracion.html"]
@@ -68,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         })
     }
-}) // <--- Asegúrate de que quede ANTES de esta llave y paréntesis de cierre
+})
 
 // ── ESTA FUNCIÓN VA SUELTA AQUÍ ABAJO (Fuera del DOMContentLoaded) ──
 async function cargarSolicitudesPendientes() {    

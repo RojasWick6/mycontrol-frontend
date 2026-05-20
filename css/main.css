@@ -267,3 +267,156 @@ flex-direction:column;
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* MODAL GLOBAL — APLICA A TODOS */
+.modal {
+    display: none;
+    position: fixed !important;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex !important;
+}
+
+.modal-content {
+    background: white !important;
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+
+.modal-content h2 {
+    font-size: 18px;
+    color: #333 !important;
+    margin: 0 0 4px 0;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid #eee !important;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: white !important;
+    color: #333 !important;
+    box-sizing: border-box;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: var(--primary, #FF8500) !important;
+}
+
+.modal-content button {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    width: 100%;
+}
+
+/* =========================
+   TARJETAS PROVEEDORES
+========================= */
+
+.proveedor-card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:16px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+/* FILAS */
+.proveedor-info{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    border-bottom:1px solid #f1f1f1;
+    padding-bottom:8px;
+}
+
+/* LABEL */
+.proveedor-label{
+    font-size:13px;
+    color:#888;
+    font-weight:600;
+    min-width:90px;
+}
+
+/* VALOR */
+.proveedor-value{
+    font-size:14px;
+    color:#333;
+    text-align:right;
+
+    word-break:break-word;
+}
+
+/* ACCIONES */
+.proveedor-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:8px;
+}
+
+/* BOTONES */
+.proveedor-actions button{
+    border:none;
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    color:white;
+    font-size:15px;
+}
+
+.btn-edit{
+    background:#ffb74d;
+}
+
+.btn-delete{
+    background:#ef5350;
+}
+
+/* MOBILE */
+@media (max-width:600px){
+
+    .proveedor-info{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:4px;
+    }
+
+    .proveedor-value{
+        text-align:left;
+        width:100%;
+    }
+
+    .proveedor-actions{
+        justify-content:flex-start;
+    }
+}
