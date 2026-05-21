@@ -159,27 +159,37 @@ cerrarModalBtn.addEventListener("click", cerrarModal)
 
 // ── GUARDAR ───────────────────────────────────────────────────
 saveBtn.addEventListener("click", async function() {
+    // Prevenir doble click
+    if (saveBtn.disabled) return
+    saveBtn.disabled    = true
+    saveBtn.textContent = "Guardando..."
+
     const nombre = nombreInput.value.trim()
     const codigo = codigoInput.value.trim()
     const precio = parseFloat(precioInput.value)
     const stock  = parseInt(stockInput.value)
 
-    // Validaciones
     if (!nombre) {
         alert("El nombre del producto es obligatorio")
         nombreInput.focus()
+        saveBtn.disabled    = false
+        saveBtn.textContent = "Guardar"
         return
     }
     if (isNaN(precio) || precio < 0) {
         alert("El precio no puede ser negativo")
-        precioInput.value = ""
+        precioInput.value   = ""
         precioInput.focus()
+        saveBtn.disabled    = false
+        saveBtn.textContent = "Guardar"
         return
     }
     if (isNaN(stock) || stock < 0) {
         alert("El stock no puede ser negativo")
-        stockInput.value = ""
+        stockInput.value    = ""
         stockInput.focus()
+        saveBtn.disabled    = false
+        saveBtn.textContent = "Guardar"
         return
     }
 
@@ -188,12 +198,22 @@ saveBtn.addEventListener("click", async function() {
 
     try {
         if (productoEditando) {
-            const res         = await fetch(API + "/productos/" + productoEditando, {
+            // ── MODO EDITAR (PUT) ──
+            const res = await fetch(API + "/productos/" + productoEditando, {
                 method:  "PUT",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify(body)
             })
             const actualizado = await res.json()
+
+            // Validar respuesta del servidor
+            if (!res.ok) {
+                alert("⚠️ " + (actualizado.error || "Error al actualizar el producto"))
+                saveBtn.disabled    = false
+                saveBtn.textContent = "Guardar"
+                return
+            }
+
             const idx = productos.findIndex(function(p) { return p.id === productoEditando })
             if (idx !== -1) {
                 if (!imagenSubida && productos[idx].imagen_url) {
@@ -202,22 +222,41 @@ saveBtn.addEventListener("click", async function() {
                 productos[idx] = actualizado
             }
         } else {
+            // ── MODO NUEVO (POST) ──
             const bodyPost = { empresa_id: EMPRESA_ID, nombre, codigo, precio, stock }
             if (imagenSubida) bodyPost.imagen_url = imagenSubida
-            const res   = await fetch(API + "/productos", {
+
+            const res = await fetch(API + "/productos", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify(bodyPost)
             })
             const nuevo = await res.json()
+
+            // Validar respuesta del servidor (Filtra duplicados 409 u otros errores)
+            if (!res.ok) {
+                alert("⚠️ " + (nuevo.error || "Error al guardar el producto"))
+                saveBtn.disabled    = false
+                saveBtn.textContent = "Guardar"
+                return
+            }
+
             if (imagenSubida && !nuevo.imagen_url) nuevo.imagen_url = imagenSubida
             productos.push(nuevo)
         }
+
+        // Si todo sale bien, cerramos y renderizamos
         cerrarModal()
         renderProductos(productos)
+
     } catch (err) {
-        alert("Error al guardar producto")
+        // Esto solo atrapa fallos de red o errores críticos de JS
+        alert("❌ Error de conexión o del servidor")
         console.error(err)
+    } finally {
+        // Asegurar que el botón se reactive si llegó al final de la ejecución exitosa
+        saveBtn.disabled    = false
+        saveBtn.textContent = "Guardar"
     }
 })
 
