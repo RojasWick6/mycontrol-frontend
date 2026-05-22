@@ -1,6 +1,10 @@
 let productos = []
 let carrito   = []
 
+var ITEMS_POR_PAGINA_VTA = 12
+var paginaActualVta      = 1
+var productosFiltradosVta = []
+
 const buscarInput = document.getElementById("buscarProducto")
 const totalSpan   = document.getElementById("total")
 
@@ -103,54 +107,7 @@ async function cargarProductos() {
 
 // ── RENDER CARDS ──────────────────────────────────────────────
 function renderCards(lista) {
-    const grid = document.getElementById("productosGrid")
-    grid.innerHTML = ""
-
-    if (lista.length === 0) {
-        grid.innerHTML = '<div class="venta-empty">No se encontraron productos</div>'
-        return
-    }
-
-    lista.forEach(function(p) {
-        const enCarrito = carrito.find(function(c) { return c.id === p.id })
-        const cantidad  = enCarrito ? enCarrito.cantidad : 0
-        const sinStock  = p.stock <= 0
-
-        // Imagen lazy — solo carga cuando es visible
-        const imagenSrc = p.imagen_url
-            ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http")
-                ? p.imagen_url
-                : API + p.imagen_url)
-            : "assets/img/no-image.png"
-
-        const card = document.createElement("div")
-        card.className = "venta-card" + (sinStock ? " venta-card-agotado" : "")
-
-        card.innerHTML =
-            '<div class="venta-card-img">' +
-                '<img data-src="' + imagenSrc + '" src="assets/img/no-image.png" alt="' + p.nombre + '" class="lazy-img" onerror="this.src=\'assets/img/no-image.png\'">' +
-                (sinStock ? '<div class="venta-card-agotado-tag">Sin stock</div>' : '') +
-                (cantidad > 0 ? '<div class="venta-card-qty-badge">' + cantidad + '</div>' : '') +
-            '</div>' +
-            '<div class="venta-card-body">' +
-                '<p class="venta-card-nombre">' + p.nombre + '</p>' +
-                '<p class="venta-card-precio">$' + parseFloat(p.precio).toFixed(2) + '</p>' +
-                '<p class="venta-card-stock">📦 ' + p.stock + ' disponibles</p>' +
-            '</div>' +
-            '<div class="venta-card-acciones">' +
-                (sinStock
-                    ? '<div class="venta-card-btn-agotado">Agotado</div>'
-                    : '<button class="venta-card-btn-menos" onclick="cambiarCantidad(' + p.id + ', -1)" ' + (cantidad === 0 ? 'disabled' : '') + '>−</button>' +
-                      '<span class="venta-card-cant">' + cantidad + '</span>' +
-                      '<button class="venta-card-btn-mas" onclick="cambiarCantidad(' + p.id + ', 1)">+</button>'
-                ) +
-            '</div>'
-
-        grid.appendChild(card)
-    })
-
-    // Activar lazy loading
-    activarLazyImages()
+    renderCardsPaginadas(lista)
 }
 
 function activarLazyImages() {
@@ -197,19 +154,12 @@ buscarInput.addEventListener("input", function() {
 function cambiarCantidad(id, delta) {
     const producto = productos.find(function(p) { return p.id === id })
     if (!producto) return
-
     const existe = carrito.find(function(c) { return c.id === id })
 
     if (delta > 0) {
-        if (producto.stock <= 0) {
-            alert("⚠️ " + producto.nombre + " no tiene stock disponible")
-            return
-        }
+        if (producto.stock <= 0) { alert("⚠️ Sin stock disponible"); return }
         if (existe) {
-            if (existe.cantidad >= producto.stock) {
-                alert("⚠️ Stock máximo: " + producto.stock + " unidades disponibles de " + producto.nombre)
-                return
-            }
+            if (existe.cantidad >= producto.stock) { alert("⚠️ Stock máximo: " + producto.stock); return }
             existe.cantidad++
         } else {
             carrito.push(Object.assign({}, producto, { cantidad: 1 }))
@@ -217,13 +167,12 @@ function cambiarCantidad(id, delta) {
     } else {
         if (!existe) return
         existe.cantidad--
-        if (existe.cantidad <= 0) {
-            carrito = carrito.filter(function(c) { return c.id !== id })
-        }
+        if (existe.cantidad <= 0) carrito = carrito.filter(function(c) { return c.id !== id })
     }
 
     renderCarrito()
-    renderCards(filtrarActual())
+    // Re-renderizar página actual sin cambiar de página
+    renderPaginaVta()
 }
 
 function filtrarActual() {
@@ -425,6 +374,100 @@ document.getElementById("btnEscanerVentas").addEventListener("click", function()
     })
 })
 
+
+function renderCardsPaginadas(lista) {
+    productosFiltradosVta = lista
+    paginaActualVta       = 1
+    renderPaginaVta()
+}
+
+function renderPaginaVta() {
+    const inicio = (paginaActualVta - 1) * ITEMS_POR_PAGINA_VTA
+    const fin    = inicio + ITEMS_POR_PAGINA_VTA
+    const pagina = productosFiltradosVta.slice(inicio, fin)
+    const total  = Math.ceil(productosFiltradosVta.length / ITEMS_POR_PAGINA_VTA)
+    const grid   = document.getElementById("productosGrid")
+
+    grid.innerHTML = ""
+    if (productosFiltradosVta.length === 0) {
+        grid.innerHTML = '<div class="venta-empty">No se encontraron productos</div>'
+    } else {
+        pagina.forEach(function(p) {
+            var enCarrito = carrito.find(function(c) { return c.id === p.id })
+            var cantidad  = enCarrito ? enCarrito.cantidad : 0
+            var sinStock  = p.stock <= 0
+            var imagenSrc = p.imagen_url
+                ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http") ? p.imagen_url : API + p.imagen_url)
+                : "assets/img/no-image.png"
+
+            var card = document.createElement("div")
+            card.className = "venta-card" + (sinStock ? " venta-card-agotado" : "")
+            card.innerHTML =
+                '<div class="venta-card-img">' +
+                    '<img data-src="' + imagenSrc + '" src="assets/img/no-image.png" class="lazy-img" alt="' + p.nombre + '" onerror="this.src=\'assets/img/no-image.png\'">' +
+                    (sinStock ? '<div class="venta-card-agotado-tag">Sin stock</div>' : '') +
+                    (cantidad > 0 ? '<div class="venta-card-qty-badge">' + cantidad + '</div>' : '') +
+                '</div>' +
+                '<div class="venta-card-body">' +
+                    '<p class="venta-card-nombre">' + p.nombre + '</p>' +
+                    '<p class="venta-card-precio">$' + parseFloat(p.precio).toFixed(2) + '</p>' +
+                    '<p class="venta-card-stock">📦 ' + p.stock + ' disponibles</p>' +
+                '</div>' +
+                '<div class="venta-card-acciones">' +
+                    (sinStock
+                        ? '<div class="venta-card-btn-agotado">Agotado</div>'
+                        : '<button class="venta-card-btn-menos" onclick="cambiarCantidad(' + p.id + ', -1)" ' + (cantidad === 0 ? 'disabled' : '') + '>−</button>' +
+                          '<span class="venta-card-cant">' + cantidad + '</span>' +
+                          '<button class="venta-card-btn-mas" onclick="cambiarCantidad(' + p.id + ', 1)">+</button>'
+                    ) +
+                '</div>'
+            grid.appendChild(card)
+        })
+        activarLazyImages()
+    }
+
+    // Paginación
+    var cont = document.getElementById("paginacionVentas")
+    if (!cont) return
+    cont.innerHTML = ""
+    if (total <= 1) return
+
+    var btnPrev = document.createElement("button")
+    btnPrev.className   = "pag-btn"
+    btnPrev.textContent = "‹"
+    btnPrev.disabled    = paginaActualVta === 1
+    btnPrev.onclick     = function() { paginaActualVta--; renderPaginaVta() }
+    cont.appendChild(btnPrev)
+
+    for (var i = 1; i <= total; i++) {
+        if (total > 7 && i > 2 && i < total - 1 && Math.abs(i - paginaActualVta) > 1) {
+            if (i === 3 || i === total - 2) {
+                var dots = document.createElement("span")
+                dots.className   = "pag-info"
+                dots.textContent = "..."
+                cont.appendChild(dots)
+            }
+            continue
+        }
+        var btn = document.createElement("button")
+        btn.className   = "pag-btn" + (i === paginaActualVta ? " active" : "")
+        btn.textContent = i
+        btn.onclick     = (function(num) { return function() { paginaActualVta = num; renderPaginaVta() } })(i)
+        cont.appendChild(btn)
+    }
+
+    var btnNext = document.createElement("button")
+    btnNext.className   = "pag-btn"
+    btnNext.textContent = "›"
+    btnNext.disabled    = paginaActualVta === total
+    btnNext.onclick     = function() { paginaActualVta++; renderPaginaVta() }
+    cont.appendChild(btnNext)
+
+    var info = document.createElement("span")
+    info.className   = "pag-info"
+    info.textContent = productosFiltradosVta.length + " productos"
+    cont.appendChild(info)
+}
 // ── INIT ──────────────────────────────────────────────────────
 cargarProductos()
 renderCarrito()

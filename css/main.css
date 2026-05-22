@@ -420,3 +420,24 @@ flex-direction:column;
         justify-content:flex-start;
     }
 }
+
+/* SCROLL EN CONTENIDO, SIDEBAR FIJO */
+@media (min-width: 901px) {
+    .dashboard-layout {
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        height: 100vh;
+        overflow-y: auto;
+        position: sticky;
+        top: 0;
+    }
+
+    .main-content {
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}

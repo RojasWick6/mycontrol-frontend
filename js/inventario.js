@@ -16,16 +16,119 @@ let productos        = []
 let productoEditando = null
 let imagenSubida     = null
 
+// Variables de paginación
+var ITEMS_POR_PAGINA_INV = 12
+var paginaActualInv      = 1
+var productosFiltrados   = []
+
+// ── MANEJO DE FLUJO Y RENDER (PAGINADO CORRECTO) ──────────────
+function renderProductos(lista) {
+    productosFiltrados = lista
+    renderPaginaInv()
+}
+
+function renderProductosPaginados(lista) {
+    productosFiltrados = lista
+    renderPaginaInv()
+}
+
+function renderPaginaInv() {
+    const inicio  = (paginaActualInv - 1) * ITEMS_POR_PAGINA_INV
+    const fin     = inicio + ITEMS_POR_PAGINA_INV
+    const pagina  = productosFiltrados.slice(inicio, fin)
+    const total   = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA_INV)
+
+    // Render de las tarjetas en el Grid
+    productosGrid.innerHTML = ""
+    if (productosFiltrados.length === 0) {
+        productosGrid.innerHTML = '<div class="empty-state"><p>No hay productos registrados</p></div>'
+    } else {
+        pagina.forEach(function(p) {
+            var carta = document.createElement("div")
+            carta.classList.add("producto-carta")
+            var imagenSrc = p.imagen_url
+                ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http") ? p.imagen_url : API + p.imagen_url)
+                : "assets/img/no-image.png"
+            var stockColor = p.stock === 0 ? "#e74c3c" : p.stock <= 5 ? "#e67e22" : "#2ecc71"
+            carta.innerHTML =
+                '<div class="carta-imagen">' +
+                    '<img data-src="' + imagenSrc + '" src="assets/img/no-image.png" class="lazy-img" alt="' + p.nombre + '" onerror="this.src=\'assets/img/no-image.png\'">' +
+                '</div>' +
+                '<div class="carta-body">' +
+                    '<h3 class="carta-nombre">' + p.nombre + '</h3>' +
+                    '<p class="carta-codigo">Cód: ' + (p.codigo || "—") + '</p>' +
+                    '<div class="carta-info">' +
+                        '<div class="carta-precio">$' + parseFloat(p.precio).toFixed(2) + '</div>' +
+                        '<div class="carta-stock" style="color:' + stockColor + '">📦 ' + p.stock + ' uds</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="carta-acciones">' +
+                    '<button class="btn-editar" onclick="editarProducto(' + p.id + ')">✏️ Editar</button>' +
+                    '<button class="btn-eliminar" onclick="eliminarProducto(' + p.id + ')">🗑️ Eliminar</button>' +
+                '</div>'
+            productosGrid.appendChild(carta)
+        })
+        activarLazyImages()
+    }
+
+    // Render de la botonera de Paginación
+    var cont = document.getElementById("paginacionInventario")
+    if (!cont) return
+    cont.innerHTML = ""
+    if (total <= 1) return
+
+    // Botón anterior
+    var btnPrev = document.createElement("button")
+    btnPrev.className   = "pag-btn"
+    btnPrev.textContent = "‹"
+    btnPrev.disabled    = paginaActualInv === 1
+    btnPrev.onclick     = function() { paginaActualInv--; renderPaginaInv() }
+    cont.appendChild(btnPrev)
+
+    // Números de página
+    for (var i = 1; i <= total; i++) {
+        if (total > 7 && i > 2 && i < total - 1 && Math.abs(i - paginaActualInv) > 1) {
+            if (i === 3 || i === total - 2) {
+                var dots = document.createElement("span")
+                dots.className   = "pag-info"
+                dots.textContent = "..."
+                cont.appendChild(dots)
+            }
+            continue
+        }
+        var btn = document.createElement("button")
+        btn.className   = "pag-btn" + (i === paginaActualInv ? " active" : "")
+        btn.textContent = i
+        btn.onclick     = (function(num) { return function() { paginaActualInv = num; renderPaginaInv() } })(i)
+        cont.appendChild(btn)
+    }
+
+    // Botón siguiente
+    var btnNext = document.createElement("button")
+    btnNext.className   = "pag-btn"
+    btnNext.textContent = "›"
+    btnNext.disabled    = paginaActualInv === total
+    btnNext.onclick     = function() { paginaActualInv++; renderPaginaInv() }
+    cont.appendChild(btnNext)
+
+    // Indicador de cantidad
+    var info = document.createElement("span")
+    info.className   = "pag-info"
+    info.textContent = " " + productosFiltrados.length + " productos"
+    cont.appendChild(info)
+}
+
 // ── HELPERS MODAL ─────────────────────────────────────────────
 function abrirModal()  { modal.classList.add("active") }
 function cerrarModal() { modal.classList.remove("active"); limpiarForm() }
 
-// ── CARGAR ────────────────────────────────────────────────────
+// ── CARGAR DATOS ──────────────────────────────────────────────
 async function cargarProductos() {
     mostrarLoading("Cargando productos..."); 
     try {
         const res = await fetch(API + "/productos?empresa_id=" + EMPRESA_ID)
         productos = await res.json()
+        // Cargamos pasándole los productos de forma que inicialice ambas variables
         renderProductos(productos)
     } catch (err) {
         console.error("Error al cargar productos:", err)
@@ -54,56 +157,6 @@ function activarLazyImages() {
     }
 }
 
-// ── RENDER CARTAS ─────────────────────────────────────────────
-function renderProductos(lista) {
-    productosGrid.innerHTML = ""
-
-    if (lista.length === 0) {
-        productosGrid.innerHTML = '<div class="empty-state"><p>No hay productos registrados</p></div>'
-        return
-    }
-
-    lista.forEach(function(p) {
-        const carta = document.createElement("div")
-        carta.classList.add("producto-carta")
-
-        const imagenSrc = p.imagen_url
-            ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http")
-                ? p.imagen_url
-                : API + p.imagen_url)
-            : "assets/img/no-image.png"
-
-        const stockColor = p.stock === 0
-            ? "#e74c3c"
-            : p.stock <= 5
-                ? "#e67e22"
-                : "#2ecc71"
-
-        carta.innerHTML =
-            '<div class="carta-imagen">' +
-                '<img data-src="' + imagenSrc + '" src="assets/img/no-image.png" ' +
-                'class="lazy-img" alt="' + p.nombre + '" ' +
-                'onerror="this.src=\'assets/img/no-image.png\'">' +
-            '</div>' +
-            '<div class="carta-body">' +
-                '<h3 class="carta-nombre">' + p.nombre + '</h3>' +
-                '<p class="carta-codigo">Cód: ' + (p.codigo || "—") + '</p>' +
-                '<div class="carta-info">' +
-                    '<div class="carta-precio">$' + parseFloat(p.precio).toFixed(2) + '</div>' +
-                    '<div class="carta-stock" style="color:' + stockColor + '">📦 ' + p.stock + ' uds</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="carta-acciones">' +
-                '<button class="btn-editar" onclick="editarProducto(' + p.id + ')">✏️ Editar</button>' +
-                '<button class="btn-eliminar" onclick="eliminarProducto(' + p.id + ')">🗑️ Eliminar</button>' +
-            '</div>'
-
-        productosGrid.appendChild(carta)
-    })
-
-    activarLazyImages()
-}
-
 // ── BUSCADOR ──────────────────────────────────────────────────
 buscador.addEventListener("input", function() {
     const texto     = buscador.value.toLowerCase()
@@ -111,7 +164,8 @@ buscador.addEventListener("input", function() {
         return p.nombre.toLowerCase().includes(texto) ||
                (p.codigo && p.codigo.toLowerCase().includes(texto))
     })
-    renderProductos(filtrados)
+    paginaActualInv = 1
+    renderProductosPaginados(filtrados)
 })
 
 // ── IMAGEN PREVIEW ────────────────────────────────────────────
@@ -159,7 +213,6 @@ cerrarModalBtn.addEventListener("click", cerrarModal)
 
 // ── GUARDAR ───────────────────────────────────────────────────
 saveBtn.addEventListener("click", async function() {
-    // Prevenir doble click
     if (saveBtn.disabled) return
     saveBtn.disabled    = true
     saveBtn.textContent = "Guardando..."
@@ -198,7 +251,7 @@ saveBtn.addEventListener("click", async function() {
 
     try {
         if (productoEditando) {
-            // ── MODO EDITAR (PUT) ──
+            // MODO EDITAR (PUT)
             const res = await fetch(API + "/productos/" + productoEditando, {
                 method:  "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -206,7 +259,6 @@ saveBtn.addEventListener("click", async function() {
             })
             const actualizado = await res.json()
 
-            // Validar respuesta del servidor
             if (!res.ok) {
                 alert("⚠️ " + (actualizado.error || "Error al actualizar el producto"))
                 saveBtn.disabled    = false
@@ -222,7 +274,7 @@ saveBtn.addEventListener("click", async function() {
                 productos[idx] = actualizado
             }
         } else {
-            // ── MODO NUEVO (POST) ──
+            // MODO NUEVO (POST)
             const bodyPost = { empresa_id: EMPRESA_ID, nombre, codigo, precio, stock }
             if (imagenSubida) bodyPost.imagen_url = imagenSubida
 
@@ -233,7 +285,6 @@ saveBtn.addEventListener("click", async function() {
             })
             const nuevo = await res.json()
 
-            // Validar respuesta del servidor (Filtra duplicados 409 u otros errores)
             if (!res.ok) {
                 alert("⚠️ " + (nuevo.error || "Error al guardar el producto"))
                 saveBtn.disabled    = false
@@ -245,22 +296,25 @@ saveBtn.addEventListener("click", async function() {
             productos.push(nuevo)
         }
 
-        // Si todo sale bien, cerramos y renderizamos
         cerrarModal()
-        renderProductos(productos)
+        // Renderizamos preservando la página en la que estábamos o aplicando el filtro activo
+        if (buscador.value.trim()) {
+            const txt = buscador.value.toLowerCase()
+            renderProductos(productos.filter(p => p.nombre.toLowerCase().includes(txt) || (p.codigo && p.codigo.toLowerCase().includes(txt))))
+        } else {
+            renderProductos(productos)
+        }
 
     } catch (err) {
-        // Esto solo atrapa fallos de red o errores críticos de JS
         alert("❌ Error de conexión o del servidor")
         console.error(err)
     } finally {
-        // Asegurar que el botón se reactive si llegó al final de la ejecución exitosa
         saveBtn.disabled    = false
         saveBtn.textContent = "Guardar"
     }
 })
 
-// ── EDITAR ────────────────────────────────────────────────────
+// ── EDITAR PRODUCTO ───────────────────────────────────────────
 function editarProducto(id) {
     const p = productos.find(function(p) { return p.id === id })
     if (!p) return
@@ -273,21 +327,28 @@ function editarProducto(id) {
     precioInput.value       = p.precio
     stockInput.value        = p.stock
     previewImg.src          = p.imagen_url
-        ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http")
-            ? p.imagen_url
-            : API + p.imagen_url)
+        ? (p.imagen_url.startsWith("data:") || p.imagen_url.startsWith("http") ? p.imagen_url : API + p.imagen_url)
         : "assets/img/no-image.png"
 
     abrirModal()
 }
 
-// ── ELIMINAR ──────────────────────────────────────────────────
+// ── ELIMINAR PRODUCTO ─────────────────────────────────────────
 async function eliminarProducto(id) {
     if (!confirm("¿Eliminar este producto?")) return
     try {
-        await fetch(API + "/productos/" + id, { method: "DELETE" })
-        productos = productos.filter(function(p) { return p.id !== id })
-        renderProductos(productos)
+        const res = await fetch(API + "/productos/" + id, { method: "DELETE" })
+        if (res.ok) {
+            productos = productos.filter(function(p) { return p.id !== id })
+            
+            // Reajuste por si eliminas el último producto de una página alta
+            const totalPaginas = Math.ceil(productos.length / ITEMS_POR_PAGINA_INV)
+            if (paginaActualInv > totalPaginas && totalPaginas > 0) paginaActualInv = totalPaginas
+            
+            renderProductos(productos)
+        } else {
+            alert("No se pudo eliminar el producto del servidor")
+        }
     } catch (err) {
         alert("Error al eliminar")
     }
@@ -302,7 +363,6 @@ function limpiarForm() {
     imagenSubida      = null
     productoEditando  = null
 }
-
 
 // ── ESCÁNER CÓDIGO DE BARRAS ──────────────────────────────────
 var escanerActivo   = false
@@ -352,11 +412,9 @@ function iniciarEscaner(callback) {
         if (!codigo) return
         escanerActivo = true
 
-        // Vibrar si el celular lo soporta
         if (navigator.vibrate) navigator.vibrate(100)
 
         detenerEscaner()
-
         if (escanerCallback) escanerCallback(codigo)
     })
 }
@@ -374,4 +432,5 @@ document.getElementById("btnEscanerInventario").addEventListener("click", functi
     })
 })
 
+// Inicialización de la app
 cargarProductos()
