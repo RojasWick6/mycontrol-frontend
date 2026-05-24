@@ -173,31 +173,64 @@ inputImagen.addEventListener("change", async function() {
     const file = inputImagen.files[0]
     if (!file) return
 
-    const reader  = new FileReader()
-    reader.onload = function(e) { previewImg.src = e.target.result }
-    reader.readAsDataURL(file)
-
     previewImg.style.opacity = "0.5"
     saveBtn.disabled         = true
-    saveBtn.textContent      = "Subiendo imagen..."
+    saveBtn.textContent      = "Procesando imagen..."
 
-    try {
+    // Comprimir imagen antes de subir
+    comprimirImagen(file, 800, 0.7, function(blob) {
+        const reader  = new FileReader()
+        reader.onload = function(e) { previewImg.src = e.target.result }
+        reader.readAsDataURL(blob)
+
         const formData = new FormData()
-        formData.append("imagen", file)
-        const res    = await fetch(API + "/uploads", { method: "POST", body: formData })
-        const data   = await res.json()
-        imagenSubida             = data.url
-        previewImg.style.opacity = "1"
-        saveBtn.disabled         = false
-        saveBtn.textContent      = "Guardar"
-    } catch (err) {
-        console.error("Error al subir imagen:", err)
-        alert("Error al subir la imagen")
-        previewImg.style.opacity = "1"
-        saveBtn.disabled         = false
-        saveBtn.textContent      = "Guardar"
-    }
+        formData.append("imagen", blob, file.name)
+
+        fetch(API + "/uploads", { method: "POST", body: formData })
+            .then(function(res) { return res.json() })
+            .then(function(data) {
+                imagenSubida             = data.url
+                previewImg.style.opacity = "1"
+                saveBtn.disabled         = false
+                saveBtn.textContent      = "Guardar"
+            })
+            .catch(function(err) {
+                console.error("Error al subir imagen:", err)
+                alert("Error al subir la imagen")
+                previewImg.style.opacity = "1"
+                saveBtn.disabled         = false
+                saveBtn.textContent      = "Guardar"
+            })
+    })
 })
+
+function comprimirImagen(file, maxWidth, calidad, callback) {
+    const img    = new Image()
+    const url    = URL.createObjectURL(file)
+    img.onload   = function() {
+        const canvas = document.createElement("canvas")
+        var ancho  = img.width
+        var alto   = img.height
+
+        // Redimensionar si es muy grande
+        if (ancho > maxWidth) {
+            alto  = Math.round(alto * maxWidth / ancho)
+            ancho = maxWidth
+        }
+
+        canvas.width  = ancho
+        canvas.height = alto
+
+        const ctx = canvas.getContext("2d")
+        ctx.drawImage(img, 0, 0, ancho, alto)
+
+        canvas.toBlob(function(blob) {
+            URL.revokeObjectURL(url)
+            callback(blob)
+        }, "image/jpeg", calidad)
+    }
+    img.src = url
+}
 
 // ── ABRIR MODAL NUEVO ─────────────────────────────────────────
 openModalBtn.addEventListener("click", function() {
