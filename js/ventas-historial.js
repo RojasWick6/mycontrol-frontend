@@ -27,38 +27,36 @@ function filtrarPor(periodo) {
     if (map[periodo] !== undefined) btns[map[periodo]].classList.add("active")
 
     const ahora  = new Date()
-    const hoyStr = ahora.toLocaleDateString("sv-SE") // YYYY-MM-DD local
+    const hoyStr = ahora.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
 
     var filtradas = todasLasVentas.filter(function(v) {
-        // Convertir fecha del servidor (viene como "2026-05-18 20:07:00")
-        // al agregar Z lo tratamos como UTC y convertimos a local
-        const fechaLocal = new Date(v.fecha.replace(" ", "T") + "Z")
-        const fechaStr   = fechaLocal.toLocaleDateString("sv-SE")
+        // Convertir fecha UTC a hora México
+        const fechaMx    = new Date(v.fecha.replace(" ", "T") + "Z")
+        const fechaMxStr = fechaMx.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
 
-        if (periodo === "hoy") {
-            return fechaStr === hoyStr
-        }
+        if (periodo === "hoy") return fechaMxStr === hoyStr
 
         if (periodo === "ayer") {
             const ayer = new Date(ahora)
             ayer.setDate(ahora.getDate() - 1)
-            return fechaStr === ayer.toLocaleDateString("sv-SE")
+            return fechaMxStr === ayer.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
         }
 
         if (periodo === "semana") {
             const lunes = new Date(ahora)
-            const dia   = ahora.getDay() || 7 // domingo = 7
+            const dia   = ahora.getDay() || 7
             lunes.setDate(ahora.getDate() - dia + 1)
             lunes.setHours(0, 0, 0, 0)
-            return fechaLocal >= lunes
+            return fechaMx >= lunes
         }
 
         if (periodo === "mes") {
-            return fechaLocal.getMonth()    === ahora.getMonth() &&
-                   fechaLocal.getFullYear() === ahora.getFullYear()
+            const mMx = fechaMx.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).substring(0, 7)
+            const mHoy = hoyStr.substring(0, 7)
+            return mMx === mHoy
         }
 
-        return true // todo
+        return true
     })
 
     renderVentas(filtradas)
@@ -70,9 +68,9 @@ function filtrarPorFecha(fecha) {
         b.classList.remove("active")
     })
     var filtradas = todasLasVentas.filter(function(v) {
-        const fechaLocal = new Date(v.fecha.replace(" ", "T") + "Z")
-        const fechaStr   = fechaLocal.toLocaleDateString("sv-SE")
-        return fechaStr === fecha
+        const fechaMx = new Date(v.fecha.replace(" ", "T") + "Z")
+            .toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
+        return fechaMx === fecha
     })
     renderVentas(filtradas)
 }
@@ -99,11 +97,14 @@ function renderVentas(ventas) {
     }
 
     ventas.forEach(function(venta) {
-        const fecha = new Date(venta.fecha.replace(" ", "T") + "Z")
+        // Corrección de parsing e inyección de zona horaria explícita
+        const fecha    = new Date(venta.fecha.replace(" ", "T") + "Z")
         const fechaStr = fecha.toLocaleDateString("es-MX", {
+            timeZone: "America/Mexico_City",
             weekday: "short", day: "numeric", month: "short", year: "numeric"
         })
-        const horaStr = fecha.toLocaleTimeString("es-MX", {
+        const horaStr  = fecha.toLocaleTimeString("es-MX", {
+            timeZone: "America/Mexico_City",
             hour: "2-digit", minute: "2-digit"
         })
 

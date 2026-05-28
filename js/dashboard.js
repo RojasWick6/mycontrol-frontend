@@ -142,15 +142,25 @@ async function cargarInventario() {
 // ── VENTAS DEL DÍA ────────────────────────────────────────────
 async function cargarVentasHoy() {
     const el = document.getElementById("ventasHoy")
-    if (!el) return // no estamos en dashboard
+    if (!el) return
 
     try {
-        const res       = await fetch(API + "/ventas?empresa_id=" + EMPRESA_ID)
-        const ventas    = await res.json()
-        const hoy       = new Date().toLocaleDateString("sv-SE")
-        const ventasHoy = ventas.filter(function(v) { return v.fecha.startsWith(hoy) })
-        const total     = ventasHoy.reduce(function(acc, v) { return acc + Number(v.total) }, 0)
-        el.textContent  = "$" + total.toFixed(2)
+        const res    = await fetch(API + "/ventas?empresa_id=" + EMPRESA_ID)
+        const ventas = await res.json()
+
+        // Fecha de hoy en México (hora local del navegador)
+        const ahora  = new Date()
+        const hoyStr = ahora.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
+
+        const ventasHoy = ventas.filter(function(v) {
+            // Convertir fecha UTC del servidor a hora México
+            const fechaMx = new Date(v.fecha.replace(" ", "T") + "Z")
+                .toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
+            return fechaMx === hoyStr
+        })
+
+        const total    = ventasHoy.reduce(function(acc, v) { return acc + Number(v.total) }, 0)
+        el.textContent = "$" + total.toFixed(2)
     } catch (err) {
         console.error("Error ventas hoy:", err)
     }
