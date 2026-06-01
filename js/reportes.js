@@ -14,21 +14,16 @@ async function cargarResumenMes() {
         const res    = await fetch(API + "/ventas?empresa_id=" + EMPRESA_ID)
         const ventas = await res.json()
 
-        const hoy  = new Date()
-        const mes  = hoy.getMonth()
-        const anio = hoy.getFullYear()
+        const ahora = new Date()
+        const mesStr = ahora.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).substring(0, 7)
 
         const ventasMes = ventas.filter(function(v) {
-            const f = new Date(v.fecha)
-            return f.getMonth() === mes && f.getFullYear() === anio
+            const f = new Date(v.fecha.replace(" ", "T") + "Z")
+            return f.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).startsWith(mesStr)
         })
 
-        const total = ventasMes.reduce(function(acc, v) {
-            return acc + parseFloat(v.total)
-        }, 0)
-
+        const total = ventasMes.reduce(function(acc, v) { return acc + parseFloat(v.total) }, 0)
         document.getElementById("ventasMes").textContent = "$" + total.toFixed(2)
-
     } catch (err) {
         console.error("Error resumen mes:", err)
     }
@@ -40,71 +35,58 @@ async function cargarMetricas() {
         const res    = await fetch(API + "/ventas?empresa_id=" + EMPRESA_ID)
         const ventas = await res.json()
 
-        const hoy   = new Date()
-        const mes   = hoy.getMonth()
-        const anio  = hoy.getFullYear()
+        const ahora  = new Date()
+        const mesStr = ahora.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).substring(0, 7)
 
         const ventasMes = ventas.filter(function(v) {
-            const f = new Date(v.fecha)
-            return f.getMonth() === mes && f.getFullYear() === anio
+            const f = new Date(v.fecha.replace(" ", "T") + "Z")
+            return f.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).startsWith(mesStr)
         })
 
-        // Número de ventas del mes
         document.getElementById("numVentasMes").textContent = ventasMes.length
 
-        // Ticket promedio
         if (ventasMes.length > 0) {
             const totalMes = ventasMes.reduce(function(acc, v) { return acc + parseFloat(v.total) }, 0)
-            const promedio = totalMes / ventasMes.length
-            document.getElementById("ticketPromedio").textContent = "$" + promedio.toFixed(2)
+            document.getElementById("ticketPromedio").textContent = "$" + (totalMes / ventasMes.length).toFixed(2)
         }
 
         // Mejor día del mes
-        const porDia = {}
+        var porDia = {}
         ventasMes.forEach(function(v) {
-            const dia = v.fecha.split(" ")[0]
+            const f   = new Date(v.fecha.replace(" ", "T") + "Z")
+            const dia = f.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
             porDia[dia] = (porDia[dia] || 0) + parseFloat(v.total)
         })
 
-        let mejorDia   = null
-        let mejorMonto = 0
+        var mejorDia = null, mejorMonto = 0
         Object.keys(porDia).forEach(function(dia) {
-            if (porDia[dia] > mejorMonto) {
-                mejorMonto = porDia[dia]
-                mejorDia   = dia
-            }
+            if (porDia[dia] > mejorMonto) { mejorMonto = porDia[dia]; mejorDia = dia }
         })
 
         if (mejorDia) {
             const fechaFormato = new Date(mejorDia + "T12:00:00").toLocaleDateString("es-MX", {
                 weekday: "short", day: "numeric", month: "short"
             })
-            document.getElementById("mejorDia").textContent    = fechaFormato
+            document.getElementById("mejorDia").textContent     = fechaFormato
             document.getElementById("mejorDiaMonto").textContent = "$" + mejorMonto.toFixed(2)
         }
 
         // Método más usado
-        const porMetodo = {}
+        var porMetodo = {}
         ventasMes.forEach(function(v) {
-            const m = v.metodo_pago || "efectivo"
+            var m = v.metodo_pago || "efectivo"
             porMetodo[m] = (porMetodo[m] || 0) + 1
         })
 
-        let metodoTop  = null
-        let metodoMax  = 0
+        var metodoTop = null, metodoMax = 0
         Object.keys(porMetodo).forEach(function(m) {
-            if (porMetodo[m] > metodoMax) {
-                metodoMax = porMetodo[m]
-                metodoTop = m
-            }
+            if (porMetodo[m] > metodoMax) { metodoMax = porMetodo[m]; metodoTop = m }
         })
 
         if (metodoTop && ventasMes.length > 0) {
-            const pct = Math.round((metodoMax / ventasMes.length) * 100)
             document.getElementById("metodoPrincipal").textContent = metodoTop
-            document.getElementById("metodoPct").textContent       = pct + "% de las ventas"
+            document.getElementById("metodoPct").textContent = Math.round((metodoMax / ventasMes.length) * 100) + "% de las ventas"
         }
-
     } catch (err) {
         console.error("Error métricas:", err)
     }
@@ -191,14 +173,16 @@ async function cargarCompras() {
         const tbody = document.getElementById("comprasList")
         tbody.innerHTML = ""
 
-        const hoy      = new Date()
+        const ahora  = new Date()
+        const mesStr = ahora.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).substring(0, 7)
+
         const totalMes = datos
-            .filter(function(c) { 
-                const f = new Date(c.fecha)
-                return f.getMonth() === hoy.getMonth() && 
-                    f.getFullYear() === hoy.getFullYear()
+            .filter(function(c) {
+                const f = new Date(c.fecha.replace(" ", "T") + "Z")
+                return f.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).startsWith(mesStr)
             })
             .reduce(function(acc, c) { return acc + parseFloat(c.total) }, 0)
+
         document.getElementById("comprasMes").textContent = "$" + totalMes.toFixed(2)
 
         if (datos.length === 0) {
@@ -207,7 +191,8 @@ async function cargarCompras() {
         }
 
         datos.forEach(function(c) {
-            const fecha = new Date(c.fecha).toLocaleDateString("es-MX")
+            const fecha = new Date(c.fecha.replace(" ", "T") + (c.fecha.includes("T") ? "" : "Z"))
+                .toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })
             const fila  = document.createElement("tr")
             fila.innerHTML =
                 "<td>#" + c.id + "</td>" +
@@ -236,9 +221,8 @@ function setHoy() {
 }
 function setAyer() {
     var ayer = new Date(); ayer.setDate(ayer.getDate() - 1)
-    var f = formatFecha(ayer)
-    document.getElementById("fechaInicio").value = f
-    document.getElementById("fechaFin").value    = f
+    document.getElementById("fechaInicio").value = formatFecha(ayer)
+    document.getElementById("fechaFin").value    = formatFecha(ayer)
 }
 function setSemana() {
     var hoy   = new Date()
@@ -256,11 +240,31 @@ function setMes() {
 btnCorte.addEventListener("click", function() { setHoy(); modalCorte.classList.add("active") })
 btnCerrarCorte.addEventListener("click", function() { modalCorte.classList.remove("active") })
 
+// ── CONVERTIR FECHA LOCAL A UTC PARA ENVIAR AL SERVIDOR ───────
+function fechaAUTC(fechaStr, hora) {
+    var d = new Date(fechaStr + "T" + hora)
+    return d.getUTCFullYear() + "-" +
+           String(d.getUTCMonth() + 1).padStart(2, "0") + "-" +
+           String(d.getUTCDate()).padStart(2, "0") + " " +
+           String(d.getUTCHours()).padStart(2, "0") + ":" +
+           String(d.getUTCMinutes()).padStart(2, "0") + ":" +
+           String(d.getUTCSeconds()).padStart(2, "0")
+}
+
 async function obtenerDatosCorte() {
     var fechaInicio = document.getElementById("fechaInicio").value
     var fechaFin    = document.getElementById("fechaFin").value
     if (!fechaInicio || !fechaFin) { alert("Selecciona las fechas"); return null }
-    var res = await fetch(API + "/corte-caja?empresa_id=" + EMPRESA_ID + "&fecha_inicio=" + fechaInicio + " 00:00:00&fecha_fin=" + fechaFin + " 23:59:59")
+
+    // Convertir a UTC: la BD guarda en UTC, enviamos el rango en UTC
+    var inicioUTC = fechaAUTC(fechaInicio, "00:00:00")
+    var finUTC    = fechaAUTC(fechaFin,    "23:59:59")
+
+    var res = await fetch(
+        API + "/corte-caja?empresa_id=" + EMPRESA_ID +
+        "&fecha_inicio=" + encodeURIComponent(inicioUTC) +
+        "&fecha_fin="    + encodeURIComponent(finUTC)
+    )
     return await res.json()
 }
 
@@ -282,17 +286,31 @@ document.getElementById("btnGenerarTicket").addEventListener("click", async func
     modalCorte.classList.remove("active")
 })
 
+// ── EXTRAER HORA DEL STRING YA EN HORA MÉXICO ─────────────────
+function extraerHoraCorte(fechaStr) {
+    if (!fechaStr) return "—"
+    var partes = fechaStr.split(" ")
+    if (partes.length < 2) return "—"
+    var t    = partes[1].split(":")
+    var h    = parseInt(t[0])
+    var m    = t[1] || "00"
+    var ampm = h >= 12 ? "p.m." : "a.m."
+    h = h % 12
+    if (h === 0) h = 12
+    return h + ":" + m + " " + ampm
+}
+
 function generarHTMLCorte(d, tipo) {
     var esTicket       = tipo === "ticket"
     var ancho          = esTicket ? "80mm" : "210mm"
     var fontSize       = esTicket ? "11px" : "13px"
-    var fechaImpresion = new Date().toLocaleString("es-MX")
+    var fechaImpresion = new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" })
     var empresa        = d.empresa ? d.empresa.nombre_empresa : "Mi Empresa"
     var balanceColor   = d.resumen.balance >= 0 ? "#27ae60" : "#e74c3c"
 
     var ventasRows = ""
     d.ventas.forEach(function(v) {
-        var hora = new Date(v.fecha).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
+        var hora = extraerHoraCorte(v.fecha)
         ventasRows += "<tr><td>" + hora + "</td><td>" + (v.productos || "—") + "</td><td>" + (v.metodo_pago || "efectivo") + '</td><td style="text-align:right"><strong>$' + parseFloat(v.total).toFixed(2) + "</strong></td></tr>"
     })
 
@@ -303,7 +321,7 @@ function generarHTMLCorte(d, tipo) {
 
     var comprasRows = ""
     d.compras.forEach(function(c) {
-        var hora = new Date(c.fecha).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
+        var hora = extraerHoraCorte(c.fecha)
         comprasRows += "<tr><td>#" + c.id + "</td><td>" + hora + "</td><td>" + (c.proveedor || "—") + '</td><td style="text-align:right"><strong>$' + parseFloat(c.total).toFixed(2) + "</strong></td></tr>"
     })
 
@@ -313,11 +331,14 @@ function generarHTMLCorte(d, tipo) {
 
     var css = "* { margin:0; padding:0; box-sizing:border-box; } body { font-family: " + (esTicket ? "monospace" : "Arial,sans-serif") + "; font-size:" + fontSize + "; width:" + ancho + "; padding:12px; color:#111; } .cabecera { text-align:center; border-bottom:2px solid #FF8500; padding-bottom:10px; margin-bottom:12px; } .cabecera h1 { font-size:" + (esTicket ? "14px" : "22px") + "; color:#FF8500; } .cabecera p { font-size:11px; color:#555; margin-top:3px; } .seccion { margin-bottom:14px; } .seccion-titulo { font-weight:bold; text-transform:uppercase; border-bottom:1px solid #eee; padding-bottom:4px; margin-bottom:8px; color:#FF8500; font-size:12px; } table { width:100%; border-collapse:collapse; } th { text-align:left; font-size:11px; padding:4px 6px; background:#f5f5f5; border-bottom:1px solid #ddd; } td { padding:4px 6px; font-size:11px; border-bottom:1px solid #f0f0f0; } .resumen-box { border:2px solid #FF8500; border-radius:8px; padding:10px; margin:12px 0; } .resumen-fila { display:flex; justify-content:space-between; padding:3px 0; font-size:13px; } .balance { font-size:16px; font-weight:bold; border-top:2px solid #ddd; margin-top:6px; padding-top:6px; color:" + balanceColor + "; } .footer { text-align:center; margin-top:14px; padding-top:10px; border-top:1px solid #eee; font-size:11px; color:#888; } .empty { color:#aaa; font-style:italic; padding:4px; font-size:11px; } @media print { @page { size:" + (esTicket ? "80mm auto" : "A4") + "; margin:" + (esTicket ? "0" : "15mm") + "; } }"
 
-    var fechaInicio = new Date(d.fecha_inicio).toLocaleDateString("es-MX")
-    var fechaFin    = new Date(d.fecha_fin).toLocaleDateString("es-MX")
+    // Fechas para mostrar en el corte (en hora México)
+    var dInicio = new Date(d.fecha_inicio.replace(" ", "T") + "Z")
+    var dFin    = new Date(d.fecha_fin.replace(" ", "T") + "Z")
+    var fechaInicioStr = dInicio.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" })
+    var fechaFinStr    = dFin.toLocaleDateString("es-MX",    { timeZone: "America/Mexico_City" })
 
     return "<!DOCTYPE html><html><head><meta charset='UTF-8'><style>" + css + "</style></head><body>" +
-        "<div class='cabecera'><h1>" + empresa + "</h1><p>CORTE DE CAJA</p><p>Del " + fechaInicio + " al " + fechaFin + "</p><p>Impreso: " + fechaImpresion + "</p><p>Usuario: " + USUARIO_NOMBRE + "</p></div>" +
+        "<div class='cabecera'><h1>" + empresa + "</h1><p>CORTE DE CAJA</p><p>Del " + fechaInicioStr + " al " + fechaFinStr + "</p><p>Impreso: " + fechaImpresion + "</p><p>Usuario: " + USUARIO_NOMBRE + "</p></div>" +
         "<div class='resumen-box'>" +
         "<div class='resumen-fila'><span>Total ventas (" + d.resumen.num_ventas + ")</span><span style='color:#27ae60'>+$" + d.resumen.total_ventas.toFixed(2) + "</span></div>" +
         "<div class='resumen-fila'><span>Total compras (" + d.resumen.num_compras + ")</span><span style='color:#e74c3c'>-$" + d.resumen.total_compras.toFixed(2) + "</span></div>" +
