@@ -11,175 +11,144 @@
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-    <p class="loading-texto">Cargando...</p>
-</div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="dashboard-layout">
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
-            <h2>MyControl</h2>
-        </div>
-        <nav class="menu">
-            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
-            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
-            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
-            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
-            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
-            <a class="menu-item active" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
-            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <header class="topbar">
-            <button class="menu-toggle" id="menuToggle">☰</button>
-            <h1>Reportes</h1>
-            <button class="btn-corte" id="btnCorte">🧾 Corte de caja</button>
-        </header>
-
-        <!-- TARJETAS RESUMEN MES -->
-        <section class="reporte-cards">
-            <div class="reporte-card">
-                <span class="reporte-icon">💰</span>
-                <div>
-                    <p class="reporte-label">Ventas este mes</p>
-                    <p class="reporte-valor" id="ventasMes">$0.00</p>
-                </div>
-            </div>
-            <div class="reporte-card">
-                <span class="reporte-icon">🧾</span>
-                <div>
-                    <p class="reporte-label">Compras este mes</p>
-                    <p class="reporte-valor" id="comprasMes">$0.00</p>
-                </div>
-            </div>
-            <div class="reporte-card" id="cardStockBajo">
-                <span class="reporte-icon">⚠️</span>
-                <div>
-                    <p class="reporte-label">Productos stock bajo</p>
-                    <p class="reporte-valor" id="numStockBajo">0</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- MÉTRICAS CLAVE -->
-        <section class="reporte-seccion">
-            <h2>📈 Resumen del negocio</h2>
-            <div class="metricas-grid">
-                <div class="metrica-box">
-                    <div class="metrica-icono">🎯</div>
-                    <div class="metrica-info">
-                        <p class="metrica-label">Ticket promedio</p>
-                        <p class="metrica-valor" id="ticketPromedio">$0.00</p>
-                        <p class="metrica-sub">Por venta este mes</p>
-                    </div>
-                </div>
-                <div class="metrica-box">
-                    <div class="metrica-icono">📦</div>
-                    <div class="metrica-info">
-                        <p class="metrica-label">Total ventas del mes</p>
-                        <p class="metrica-valor" id="numVentasMes">0</p>
-                        <p class="metrica-sub">Transacciones</p>
-                    </div>
-                </div>
-                <div class="metrica-box">
-                    <div class="metrica-icono">📅</div>
-                    <div class="metrica-info">
-                        <p class="metrica-label">Mejor día del mes</p>
-                        <p class="metrica-valor" id="mejorDia">—</p>
-                        <p class="metrica-sub" id="mejorDiaMonto">$0.00</p>
-                    </div>
-                </div>
-                <div class="metrica-box">
-                    <div class="metrica-icono">💳</div>
-                    <div class="metrica-info">
-                        <p class="metrica-label">Método más usado</p>
-                        <p class="metrica-valor" id="metodoPrincipal">—</p>
-                        <p class="metrica-sub" id="metodoPct">0% de las ventas</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- DOS COLUMNAS -->
-        <section class="reporte-grid">
-            <div class="reporte-tabla-box">
-                <div class="reporte-box-header">
-                    <h2>🏆 Productos más vendidos</h2>
-                </div>
-                <div id="masVendidosList" class="ranking-lista"></div>
-            </div>
-            <div class="reporte-tabla-box">
-                <div class="reporte-box-header">
-                    <h2>⚠️ Stock bajo</h2>
-                </div>
-                <div id="stockBajoList" class="stock-lista"></div>
-            </div>
-        </section>
-
-        <!-- HISTORIAL COMPRAS -->
-        <section class="reporte-seccion">
-            <h2>Historial de compras</h2>
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Proveedor</th>
-                        <th>Productos</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody id="comprasList"></tbody>
-            </table>
-        </section>
-
-    </main>
-</div>
-
-<!-- MODAL CORTE DE CAJA -->
-<div class="modal" id="modalCorte">
-    <div class="modal-content modal-corte-form">
-        <h2>🧾 Generar corte de caja</h2>
-        <p style="color:#666; font-size:14px; margin-top:-8px">Selecciona el período para el corte</p>
-        <div class="corte-fechas">
-            <div class="fecha-group">
-                <label>Fecha inicio</label>
-                <input type="date" id="fechaInicio">
-            </div>
-            <div class="fecha-group">
-                <label>Fecha fin</label>
-                <input type="date" id="fechaFin">
-            </div>
-        </div>
-        <div class="corte-accesos-rapidos">
-            <button onclick="setHoy()">Hoy</button>
-            <button onclick="setAyer()">Ayer</button>
-            <button onclick="setSemana()">Esta semana</button>
-            <button onclick="setMes()">Este mes</button>
-        </div>
-        <div class="modal-btns" style="margin-top:20px">
-            <button id="btnGenerarPDF" style="background:#e74c3c">📄 PDF</button>
-            <button id="btnGenerarTicket" style="background:#FF8500">🖨️ Ticket</button>
-        </div>
-        <button id="btnCerrarCorte" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:8px;background:#eee;color:#555;font-size:14px;cursor:pointer">
-            Cancelar
-        </button>
+        <div class="loading-spinner"></div>
+        <p class="loading-texto">Cargando...</p>
     </div>
-</div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<script src="js/config.js"></script>
-<script src="js/session.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if (!ES_ADMIN) window.location.href = "ventas.html"
-    })
-</script>
-<script src="js/dashboard.js"></script>
-<script src="js/reportes.js"></script>
-<script src="js/theme.js"></script>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
+                <h2>MyControl</h2>
+            </div>
+            <nav class="menu">
+                <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+                <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+                <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+                <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+                <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+                <a class="menu-item active" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+                <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <h1>Reportes</h1>
+            </header>
+
+            <!-- TARJETAS RESUMEN MES -->
+            <section class="reporte-cards">
+                <div class="reporte-card">
+                    <span class="reporte-icon">💰</span>
+                    <div>
+                        <p class="reporte-label">Ventas este mes</p>
+                        <p class="reporte-valor" id="ventasMes">$0.00</p>
+                    </div>
+                </div>
+                <div class="reporte-card">
+                    <span class="reporte-icon">🧾</span>
+                    <div>
+                        <p class="reporte-label">Compras este mes</p>
+                        <p class="reporte-valor" id="comprasMes">$0.00</p>
+                    </div>
+                </div>
+                <div class="reporte-card" id="cardStockBajo">
+                    <span class="reporte-icon">⚠️</span>
+                    <div>
+                        <p class="reporte-label">Productos stock bajo</p>
+                        <p class="reporte-valor" id="numStockBajo">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÉTRICAS CLAVE -->
+            <section class="reporte-seccion">
+                <h2>📈 Resumen del negocio</h2>
+                <div class="metricas-grid">
+                    <div class="metrica-box">
+                        <div class="metrica-icono">🎯</div>
+                        <div class="metrica-info">
+                            <p class="metrica-label">Ticket promedio</p>
+                            <p class="metrica-valor" id="ticketPromedio">$0.00</p>
+                            <p class="metrica-sub">Por venta este mes</p>
+                        </div>
+                    </div>
+                    <div class="metrica-box">
+                        <div class="metrica-icono">📦</div>
+                        <div class="metrica-info">
+                            <p class="metrica-label">Total ventas del mes</p>
+                            <p class="metrica-valor" id="numVentasMes">0</p>
+                            <p class="metrica-sub">Transacciones</p>
+                        </div>
+                    </div>
+                    <div class="metrica-box">
+                        <div class="metrica-icono">📅</div>
+                        <div class="metrica-info">
+                            <p class="metrica-label">Mejor día del mes</p>
+                            <p class="metrica-valor" id="mejorDia">—</p>
+                            <p class="metrica-sub" id="mejorDiaMonto">$0.00</p>
+                        </div>
+                    </div>
+                    <div class="metrica-box">
+                        <div class="metrica-icono">💳</div>
+                        <div class="metrica-info">
+                            <p class="metrica-label">Método más usado</p>
+                            <p class="metrica-valor" id="metodoPrincipal">—</p>
+                            <p class="metrica-sub" id="metodoPct">0% de las ventas</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DOS COLUMNAS -->
+            <section class="reporte-grid">
+                <div class="reporte-tabla-box">
+                    <div class="reporte-box-header">
+                        <h2>🏆 Productos más vendidos</h2>
+                    </div>
+                    <div id="masVendidosList" class="ranking-lista"></div>
+                </div>
+                <div class="reporte-tabla-box">
+                    <div class="reporte-box-header">
+                        <h2>⚠️ Stock bajo</h2>
+                    </div>
+                    <div id="stockBajoList" class="stock-lista"></div>
+                </div>
+            </section>
+
+            <!-- HISTORIAL COMPRAS — nuevo diseño -->
+            <section class="reporte-seccion">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+                    <h2 style="margin:0">🛒 Historial de compras</h2>
+                    <span id="totalComprasLabel" style="
+                        background: #fff3e0;
+                        color: #FF8500;
+                        font-weight: 700;
+                        font-size: 13px;
+                        padding: 6px 14px;
+                        border-radius: 20px;
+                        border: 1px solid #FFE0B2;">
+                        Este mes: <span id="comprasMesLabel">$0.00</span>
+                    </span>
+                </div>
+                <div id="comprasListCards"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/session.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!ES_ADMIN) window.location.href = "ventas.html"
+        })
+    </script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/reportes.js"></script>
+    <script src="js/theme.js"></script>
 </body>
 </html>
