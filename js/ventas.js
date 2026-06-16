@@ -231,6 +231,7 @@ function renderCarrito() {
 
     badge.textContent     = totalItems
     totalSpan.textContent = total.toFixed(2)
+    actualizarCobroBox()
 }
 
 // ── REGISTRAR VENTA ───────────────────────────────────────────
@@ -468,6 +469,73 @@ function renderPaginaVta() {
     info.textContent = productosFiltradosVta.length + " productos"
     cont.appendChild(info)
 }
+
+// ── COBRO Y CAMBIO ────────────────────────────────────────────
+function calcularCambio() {
+    var total    = carrito.reduce(function(acc, p) { return acc + parseFloat(p.precio) * p.cantidad }, 0)
+    var recibido = parseFloat(document.getElementById("dineroRecibido").value) || 0
+    var cambio   = recibido - total
+
+    var el = document.getElementById("cambioADar")
+    if (cambio < 0) {
+        el.textContent = "Faltan $" + Math.abs(cambio).toFixed(2)
+        el.style.color = "#e74c3c"
+    } else {
+        el.textContent = "$" + cambio.toFixed(2)
+        el.style.color = "#27ae60"
+    }
+}
+
+// Muestra/oculta el box de cobro según si hay items en el carrito
+function actualizarCobroBox() {
+    var box = document.getElementById("cobroBox")
+    if (box) {
+        box.style.display = carrito.length > 0 ? "block" : "none"
+        if (carrito.length > 0) calcularCambio()
+        else {
+            document.getElementById("dineroRecibido").value = ""
+            document.getElementById("cambioADar").textContent = "$0.00"
+            document.getElementById("cambioADar").style.color = "#27ae60"
+        }
+    }
+}
+
+// ── CALCULADORA ───────────────────────────────────────────────
+var calcExpr = ""
+
+function toggleCalculadora() {
+    var box = document.getElementById("calcBox")
+    box.style.display = box.style.display === "none" ? "block" : "none"
+}
+
+function calcInput(val) {
+    if (calcExpr === "Error") calcExpr = ""
+    calcExpr += val
+    document.getElementById("calcDisplay").textContent = calcExpr
+}
+
+function calcIgual() {
+    try {
+        var result = Function('"use strict"; return (' + calcExpr + ')')()
+        calcExpr = String(parseFloat(result.toFixed(8)))
+        document.getElementById("calcDisplay").textContent = calcExpr
+    } catch(e) {
+        calcExpr = "Error"
+        document.getElementById("calcDisplay").textContent = "Error"
+    }
+}
+
+function calcBorrar() {
+    calcExpr = calcExpr.slice(0, -1) || "0"
+    document.getElementById("calcDisplay").textContent = calcExpr || "0"
+}
+
+function calcLimpiar() {
+    calcExpr = ""
+    document.getElementById("calcDisplay").textContent = "0"
+}
+
+
 // ── INIT ──────────────────────────────────────────────────────
 cargarProductos()
 renderCarrito()

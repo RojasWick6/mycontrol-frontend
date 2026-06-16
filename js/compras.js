@@ -1,197 +1,316 @@
-let productos = []
-let carrito = []
+var productosLista   = []
+var carritoCompra    = []
+var historialTotal   = []
+var proveedoresLista = []
 
-const buscarInput     = document.getElementById("buscarProducto")
-const sugerencias     = document.getElementById("sugerencias")
-const carritoList     = document.getElementById("carritoList")
-const totalSpan       = document.getElementById("totalCompra")
-const selectProveedor = document.getElementById("selectProveedor")
-const btnRegistrar    = document.getElementById("btnRegistrarCompra")
-const btnNuevo        = document.getElementById("btnNuevoProveedor")
-const modal           = document.getElementById("modalProveedor")
-const formProveedor   = document.getElementById("formProveedor")
-const btnCerrar       = document.getElementById("cerrarModal")
-
-async function cargarProductos() {
-    const res = await fetch(`${API}/productos?empresa_id=${EMPRESA_ID}`)
-    productos = await res.json()
-}
-
-async function cargarProveedores() {
-    const res = await fetch(`${API}/proveedores?empresa_id=${EMPRESA_ID}`)
-    const proveedores = await res.json()
-    selectProveedor.innerHTML = `<option value="">-- Selecciona proveedor --</option>`
-    proveedores.forEach(p => {
-        const opt = document.createElement("option")
-        opt.value = p.id
-        opt.textContent = p.nombre
-        selectProveedor.appendChild(opt)
-    })
-}
-
-buscarInput.addEventListener("input", () => {
-    const texto = buscarInput.value.toLowerCase()
-    sugerencias.innerHTML = ""
-    if (!texto) return
-
-    const filtrados = productos.filter(p =>
-        p.nombre.toLowerCase().includes(texto) ||
-        (p.codigo && p.codigo.toLowerCase().includes(texto))
-    )
-
-    filtrados.forEach(p => {
-        const li = document.createElement("li")
-        li.textContent = `${p.nombre} — stock actual: ${p.stock}`
-        li.onclick = () => {
-            agregarAlCarrito(p)
-            buscarInput.value = ""
-            sugerencias.innerHTML = ""
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+    mostrarLoading("Cargando compras...")
+    try {
+        await Promise.all([cargarProveedores(), cargarHistorial()])
+        if (ES_ADMIN) {
+            var btn = document.getElementById("btnNuevoProv")
+            if (btn) btn.style.display = "block"
         }
-        sugerencias.appendChild(li)
+    } finally {
+        ocultarLoading()
+    }
+}
+
+// ── PROVEEDORES ───────────────────────────────────────────────
+async function cargarProveedores() {
+    try {
+        const res    = await fetch(API + "/proveedores?empresa_id=" + EMPRESA_ID)
+        proveedoresLista = await res.json()
+
+        var sel1 = document.getElementById("proveedorSelect")
+        var sel2 = document.getElementById("filtroProv")
+        sel1.innerHTML = '<option value="">Selecciona un proveedor...</option>'
+        sel2.innerHTML = '<option value="">Todos los proveedores</option>'
+
+        proveedoresLista.forEach(function(p) {
+            sel1.innerHTML += '<option value="' + p.id + '">' + p.nombre + '</option>'
+            sel2.innerHTML += '<option value="' + p.id + '">' + p.nombre + '</option>'
+        })
+    } catch (err) { console.error("Error proveedores:", err) }
+}
+
+// ── HISTORIAL + STATS ─────────────────────────────────────────
+async function cargarHistorial() {
+    try {
+        const res     = await fetch(API + "/reportes/compras?empresa_id=" + EMPRESA_ID)
+        historialTotal = await res.json()
+        calcularStats()
+        renderHistorial(historialTotal)
+    } catch (err) { console.error("Error historial:", err) }
+}
+
+function calcularStats() {
+    const ahora  = new Date()
+    const mesStr = ahora.toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" }).substring(0, 7)
+
+    const delMes = historialTotal.filter(function(c) {
+        if (!c.fecha) return false
+        return new Date(c.fecha.replace(" ", "T") + "Z")
+            .toLocaleDateString("sv-SE", { timeZone: "America/Mexico_City" })
+            .startsWith(mesStr)
     })
+
+    const total = delMes.reduce(function(a, c) { return a + parseFloat(c.total) }, 0)
+    document.getElementById("statGastado").textContent = "$" + total.toFixed(2)
+    document.getElementById("statNum").textContent     = delMes.length
+
+    var porProv = {}
+    historialTotal.forEach(function(c) {
+        var p = c.proveedor || "Sin proveedor"
+        porProv[p] = (porProv[p] || 0) + 1
+    })
+    var top = null, topMax = 0
+    Object.keys(porProv).forEach(function(p) {
+        if (porProv[p] > topMax) { topMax = porProv[p]; top = p }
+    })
+    document.getElementById("statTopProv").textContent = top || "—"
+}
+
+function aplicarFiltroProv() {
+    var id = document.getElementById("filtroProv").value
+    if (!id) { renderHistorial(historialTotal); return }
+    var filtrado = historialTotal.filter(function(c) {
+        return proveedoresLista.find(function(p) { return p.id == id && p.nombre === c.proveedor })
+    })
+    renderHistorial(filtrado)
+}
+
+function renderHistorial(lista) {
+    var cont = document.getElementById("historialLista")
+    cont.innerHTML = ""
+
+    if (lista.length === 0) {
+        cont.innerHTML = '<div style="text-align:center;padding:40px;color:#ccc"><p style="font-size:28px">📭</p><p style="margin-top:8px;font-size:13px">Sin compras registradas</p></div>'
+        return
+    }
+
+    lista.forEach(function(c) {
+        var fecha    = new Date(c.fecha.replace(" ", "T") + "Z")
+        var fechaStr = fecha.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City", day:"numeric", month:"short", year:"numeric" })
+        var horaStr  = fecha.toLocaleTimeString("es-MX", { timeZone: "America/Mexico_City", hour:"2-digit", minute:"2-digit" })
+
+        var div = document.createElement("div")
+        div.style.cssText = "border:1.5px solid #f0f0f0;border-radius:12px;padding:14px;margin-bottom:10px;transition:box-shadow 0.2s"
+        div.onmouseenter = function() { this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)" }
+        div.onmouseleave = function() { this.style.boxShadow = "none" }
+        div.innerHTML =
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+                '<div style="flex:1;min-width:0">' +
+                    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+                        '<span style="font-weight:700;color:#333;font-size:14px">' + (c.proveedor || "Sin proveedor") + '</span>' +
+                        '<span style="background:#f5f5f5;color:#999;font-size:11px;padding:2px 8px;border-radius:20px">#' + c.id + '</span>' +
+                    '</div>' +
+                    '<div style="display:flex;gap:10px;margin-top:5px;flex-wrap:wrap">' +
+                        '<span style="font-size:12px;color:#aaa">🕐 ' + horaStr + '</span>' +
+                        '<span style="font-size:12px;color:#aaa">📅 ' + fechaStr + '</span>' +
+                        '<span style="font-size:12px;color:#aaa">📦 ' + c.num_productos + ' producto' + (c.num_productos != 1 ? 's' : '') + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="text-align:right;flex-shrink:0">' +
+                    '<p style="font-size:17px;font-weight:800;color:#FF8500">$' + parseFloat(c.total).toFixed(2) + '</p>' +
+                '</div>' +
+            '</div>'
+        cont.appendChild(div)
+    })
+}
+
+// ── BUSCADOR PRODUCTOS ────────────────────────────────────────
+async function cargarProductosCompra() {
+    try {
+        const res    = await fetch(API + "/productos/lista?empresa_id=" + EMPRESA_ID)
+        productosLista = await res.json()
+    } catch (err) { console.error("Error productos:", err) }
+}
+
+document.getElementById("buscarProdCompra").addEventListener("input", function() {
+    var texto = this.value.toLowerCase().trim()
+    var drop  = document.getElementById("dropdownProd")
+
+    if (!texto) { drop.style.display = "none"; return }
+
+    var filtrados = productosLista.filter(function(p) {
+        return p.nombre.toLowerCase().includes(texto) ||
+               (p.codigo && p.codigo.toLowerCase().includes(texto))
+    })
+
+    if (filtrados.length === 0) {
+        drop.innerHTML = '<div style="padding:12px;color:#aaa;font-size:13px;text-align:center">Sin resultados</div>'
+        drop.style.display = "block"
+        return
+    }
+
+    drop.innerHTML = ""
+    filtrados.slice(0, 8).forEach(function(p) {
+        var item = document.createElement("div")
+        item.style.cssText = "padding:10px 14px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center"
+        item.onmouseenter = function() { this.style.background = "#fff8f0" }
+        item.onmouseleave = function() { this.style.background = "white" }
+        item.innerHTML =
+            '<div>' +
+                '<p style="font-size:14px;font-weight:600;color:#333">' + p.nombre + '</p>' +
+                '<p style="font-size:12px;color:#aaa">Stock: ' + p.stock + ' uds</p>' +
+            '</div>' +
+            '<span style="font-size:13px;font-weight:700;color:#FF8500">$' + parseFloat(p.precio).toFixed(2) + '</span>'
+        item.onclick = function() {
+            agregarProductoCompra(p)
+            document.getElementById("buscarProdCompra").value = ""
+            drop.style.display = "none"
+        }
+        drop.appendChild(item)
+    })
+    drop.style.display = "block"
 })
 
-function agregarAlCarrito(producto) {
-    const existe = carrito.find(p => p.id === producto.id)
-    if (existe) {
-        existe.cantidad++
-    } else {
-        carrito.push({ ...producto, cantidad: 1, precio_compra: "" })
+document.addEventListener("click", function(e) {
+    if (!e.target.closest("#buscarProdCompra") && !e.target.closest("#dropdownProd")) {
+        document.getElementById("dropdownProd").style.display = "none"
     }
-    renderCarrito()
+})
+
+// ── CARRITO DE COMPRA ─────────────────────────────────────────
+function agregarProductoCompra(p) {
+    var existe = carritoCompra.find(function(c) { return c.id === p.id })
+    if (existe) { existe.cantidad++; renderCarritoCompra(); return }
+    carritoCompra.push({ id: p.id, nombre: p.nombre, cantidad: 1, precio: 0 })
+    renderCarritoCompra()
 }
 
-function renderCarrito() {
-    carritoList.innerHTML = ""
-    let total = 0
+function quitarProductoCompra(id) {
+    carritoCompra = carritoCompra.filter(function(c) { return c.id !== id })
+    renderCarritoCompra()
+}
 
-    carrito.forEach(item => {
-        const precio   = parseFloat(item.precio_compra) || 0
-        const subtotal = precio * item.cantidad
-        total += subtotal
+function renderCarritoCompra() {
+    var cont     = document.getElementById("listaCompra")
+    var msgVacio = document.getElementById("listaVaciaMsg")
 
-        const fila = document.createElement("tr")
-        fila.innerHTML = `
-            <td>${item.nombre}</td>
-            <td>
-                <input type="number" min="1" value="${item.cantidad}"
-                    onchange="actualizarCantidad(${item.id}, this.value)"
-                    style="width:60px">
-            </td>
-            <td>
-                <input type="number" min="0" step="0.01"
-                    placeholder="0.00" value="${item.precio_compra}"
-                    onchange="actualizarPrecio(${item.id}, this.value)"
-                    style="width:90px">
-            </td>
-            <td>$${subtotal.toFixed(2)}</td>
-            <td><button onclick="quitarDelCarrito(${item.id})">❌</button></td>
-        `
-        carritoList.appendChild(fila)
+    if (carritoCompra.length === 0) {
+        cont.innerHTML = '<div id="listaVaciaMsg" style="text-align:center;padding:24px;color:#ccc"><p style="font-size:28px">🛍️</p><p style="font-size:13px;margin-top:6px">Busca y agrega productos</p></div>'
+        actualizarTotalCompra()
+        return
+    }
+
+    cont.innerHTML = ""
+
+    // Header tabla
+    var header = document.createElement("div")
+    header.style.cssText = "display:grid;grid-template-columns:1fr 90px 110px 70px 36px;gap:6px;padding:6px 8px;font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase;border-bottom:1px solid #f0f0f0;margin-bottom:6px"
+    header.innerHTML = "<span>Producto</span><span style='text-align:center'>Cant.</span><span style='text-align:center'>Precio compra</span><span style='text-align:right'>Subtotal</span><span></span>"
+    cont.appendChild(header)
+
+    carritoCompra.forEach(function(item) {
+        var fila = document.createElement("div")
+        fila.style.cssText = "display:grid;grid-template-columns:1fr 90px 110px 70px 36px;gap:6px;align-items:center;padding:8px 8px;border-bottom:1px solid #fafafa"
+        fila.innerHTML =
+            '<span style="font-size:13px;font-weight:600;color:#333">' + item.nombre + '</span>' +
+            '<input type="number" min="1" value="' + item.cantidad + '" onchange="cambiarCantidadCompra(' + item.id + ',this.value)" style="width:100%;padding:6px;border:1.5px solid #eee;border-radius:8px;font-size:13px;text-align:center;outline:none">' +
+            '<input type="number" min="0" step="0.01" value="' + item.precio + '" placeholder="0.00" onchange="cambiarPrecioCompra(' + item.id + ',this.value)" style="width:100%;padding:6px;border:1.5px solid #eee;border-radius:8px;font-size:13px;text-align:center;outline:none">' +
+            '<span style="font-size:13px;font-weight:700;color:#333;text-align:right">$' + (item.cantidad * item.precio).toFixed(2) + '</span>' +
+            '<button onclick="quitarProductoCompra(' + item.id + ')" style="width:32px;height:32px;background:#fff0f0;color:#e74c3c;border:none;border-radius:8px;cursor:pointer;font-size:14px">✕</button>'
+        cont.appendChild(fila)
     })
 
-    totalSpan.textContent = total.toFixed(2)
+    actualizarTotalCompra()
 }
 
-function actualizarPrecio(id, val) {
-    const item = carrito.find(function(p) { return p.id === id })
-    if (!item) return
-    const precio = parseFloat(val)
-    if (isNaN(precio) || precio < 0) {
-        alert("El precio no puede ser negativo")
-        return
-    }
-    item.precio_compra = val
-    renderCarrito()
+function cambiarCantidadCompra(id, val) {
+    var item = carritoCompra.find(function(c) { return c.id === id })
+    if (item) { item.cantidad = Math.max(1, parseInt(val) || 1) }
+    renderCarritoCompra()
 }
 
-function actualizarCantidad(id, val) {
-    const item = carrito.find(function(p) { return p.id === id })
-    if (!item) return
-    const cantidad = parseInt(val)
-    if (isNaN(cantidad) || cantidad < 1) {
-        alert("La cantidad debe ser al menos 1")
-        return
-    }
-    item.cantidad = cantidad
-    renderCarrito()
+function cambiarPrecioCompra(id, val) {
+    var item = carritoCompra.find(function(c) { return c.id === id })
+    if (item) { item.precio = parseFloat(val) || 0 }
+    actualizarTotalCompra()
 }
 
-function quitarDelCarrito(id) {
-    carrito = carrito.filter(p => p.id !== id)
-    renderCarrito()
+function actualizarTotalCompra() {
+    var total = carritoCompra.reduce(function(acc, c) { return acc + c.cantidad * c.precio }, 0)
+    document.getElementById("totalCompraDisplay").textContent = "$" + total.toFixed(2)
 }
 
-btnRegistrar.addEventListener("click", async () => {
-    const proveedor_id = selectProveedor.value
-    if (!proveedor_id)       { alert("Selecciona un proveedor"); return }
-    if (carrito.length === 0) { alert("Agrega al menos un producto"); return }
+// ── REGISTRAR COMPRA ──────────────────────────────────────────
+async function registrarCompra() {
+    var provId = document.getElementById("proveedorSelect").value
+    if (!provId) { alert("Selecciona un proveedor"); return }
+    if (carritoCompra.length === 0) { alert("Agrega al menos un producto"); return }
 
-    const sinPrecio = carrito.some(p => !p.precio_compra || parseFloat(p.precio_compra) <= 0)
-    if (sinPrecio) { alert("Ingresa el precio de compra en todos los productos"); return }
+    var sinPrecio = carritoCompra.find(function(c) { return c.precio <= 0 })
+    if (sinPrecio) { alert("Ingresa el precio de compra para: " + sinPrecio.nombre); return }
 
     try {
-        const res = await fetch(`${API}/compras`, {
-            method: "POST",
+        mostrarLoading("Registrando compra...")
+        const res  = await fetch(API + "/compras", {
+            method:  "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                empresa_id:   EMPRESA_ID,
-                proveedor_id: parseInt(proveedor_id),
-                productos: carrito.map(p => ({
-                    producto_id:    p.id,
-                    cantidad:       p.cantidad,
-                    precio_unitario: parseFloat(p.precio_compra)
-                }))
+                empresa_id:  EMPRESA_ID,
+                proveedor_id: parseInt(provId),
+                productos: carritoCompra.map(function(c) {
+                    return { producto_id: c.id, cantidad: c.cantidad, precio_unitario: c.precio }
+                })
             })
         })
         const data = await res.json()
         if (data.ok) {
-            alert("✅ Compra registrada. Stock actualizado.")
-            carrito = []
-            renderCarrito()
-            buscarInput.value    = ""
-            selectProveedor.value = ""
-            await cargarProductos()
+            carritoCompra = []
+            renderCarritoCompra()
+            await cargarHistorial()
+            alert("✅ Compra registrada correctamente")
         }
     } catch (err) {
-        alert("Error al conectar con el servidor")
-        console.error(err)
+        alert("Error al registrar compra")
+    } finally {
+        ocultarLoading()
     }
-})
+}
 
-// 🔥 Control de modales modificado para usar clases activas
-btnNuevo.addEventListener("click", () => {
-    modal.classList.add("active")
-})
+// ── PROVEEDOR RÁPIDO ──────────────────────────────────────────
+function abrirModalProvRapido() {
+    document.getElementById("rpNombre").value   = ""
+    document.getElementById("rpTelefono").value = ""
+    document.getElementById("modalProvRapido").classList.add("active")
+}
+function cerrarModalProvRapido() {
+    document.getElementById("modalProvRapido").classList.remove("active")
+}
 
-btnCerrar.addEventListener("click", () => {
-    modal.classList.remove("active")
-    formProveedor.reset()
-})
-
-formProveedor.addEventListener("submit", async (e) => {
-    e.preventDefault()
-    const nombre   = document.getElementById("provNombre").value.trim()
-    const telefono = document.getElementById("provTelefono").value.trim()
-    const email    = document.getElementById("provEmail").value.trim()
-
+async function guardarProvRapido() {
+    var nombre = document.getElementById("rpNombre").value.trim()
     if (!nombre) { alert("El nombre es obligatorio"); return }
 
     try {
-        const res = await fetch(`${API}/proveedores`, {
-            method: "POST",
+        const res  = await fetch(API + "/proveedores", {
+            method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ empresa_id: EMPRESA_ID, nombre, telefono, email })
+            body: JSON.stringify({
+                empresa_id:  EMPRESA_ID,
+                nombre:      nombre,
+                telefono:    document.getElementById("rpTelefono").value.trim()    || null,
+                telefono2:   document.getElementById("rpTelefono2").value.trim()   || null,
+                email:       document.getElementById("rpEmail").value.trim()       || null,
+                descripcion: document.getElementById("rpDescripcion").value.trim() || null
+            })
         })
-        const nuevo = await res.json()
-        await cargarProveedores()
-        selectProveedor.value = nuevo.id
-        modal.classList.remove("active") // 🔥 Cambiado
-        formProveedor.reset()
-    } catch (err) {
-        alert("Error al guardar proveedor")
-    }
-})
+        const data = await res.json()
+        if (data.id) {
+            cerrarModalProvRapido()
+            await cargarProveedores()
+            document.getElementById("proveedorSelect").value = data.id
+            alert("✅ Proveedor creado")
+        } else {
+            alert(data.error || "Error al crear")
+        }
+    } catch (err) { alert("Error al crear proveedor") }
+}
 
-cargarProductos()
-cargarProveedores()
+// ── ARRANQUE ──────────────────────────────────────────────────
+cargarProductosCompra()
+init()

@@ -7,17 +7,15 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/ventas.css">
-    <link rel="stylesheet" href="css/compras.css">
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay">
+<div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
     <p class="loading-texto">Cargando...</p>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="dashboard-layout">
 
+<div class="dashboard-layout">
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
@@ -37,80 +35,139 @@
     <main class="main-content">
         <header class="topbar">
             <button class="menu-toggle" id="menuToggle">☰</button>
-            <div class="ventas-header">
-                <h1>Nueva <span>Compra</span></h1>
+            <h1>Compras</h1>
+            <div class="topbar-right">
+                <div id="reloj" class="topbar-clock"></div>
+                
+                
             </div>
         </header>
 
-        <section class="ventas-layout">
+        <!-- STATS -->
+        <section style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:46px;height:46px;border-radius:12px;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">💸</div>
+                <div>
+                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Gastado este mes</p>
+                    <p style="font-size:20px;font-weight:800;color:#FF8500" id="statGastado">$0.00</p>
+                </div>
+            </div>
+            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:46px;height:46px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📋</div>
+                <div>
+                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Compras este mes</p>
+                    <p style="font-size:20px;font-weight:800;color:#27ae60" id="statNum">0</p>
+                </div>
+            </div>
+            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:46px;height:46px;border-radius:12px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🏆</div>
+                <div style="min-width:0">
+                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Proveedor frecuente</p>
+                    <p style="font-size:15px;font-weight:800;color:#1976d2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="statTopProv">—</p>
+                </div>
+            </div>
+        </section>
 
-            <div class="ventas-productos">
+        <!-- LAYOUT PRINCIPAL -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+
+            <!-- FORM NUEVA COMPRA -->
+            <div style="background:white;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <h2 style="font-size:17px;color:#333;margin-bottom:18px;display:flex;align-items:center;gap:8px">🛒 Nueva compra</h2>
 
                 <!-- Proveedor -->
-                <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center">
-                    <select id="selectProveedor" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ddd">
-                        <option value="">-- Selecciona proveedor --</option>
-                    </select>
-                    <button id="btnNuevoProveedor" class="btn-historial">+ Nuevo</button>
+                <div style="margin-bottom:14px">
+                    <label style="font-size:12px;color:#888;font-weight:600;display:block;margin-bottom:6px">PROVEEDOR</label>
+                    <div style="display:flex;gap:8px">
+                        <select id="proveedorSelect" style="flex:1;padding:10px 12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;color:#333;outline:none;background:white">
+                            <option value="">Selecciona un proveedor...</option>
+                        </select>
+                        <button id="btnNuevoProv" onclick="abrirModalProvRapido()" style="display:none;padding:10px 14px;background:#FF8500;color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;font-size:13px">+ Nuevo</button>
+                    </div>
                 </div>
 
-                <!-- Buscador -->
-                <input type="text" id="buscarProducto"
-                    placeholder="Buscar producto por nombre o código"/>
-                <ul id="sugerencias"></ul>
+                <!-- Buscar producto -->
+                <div style="margin-bottom:14px;position:relative">
+                    <label style="font-size:12px;color:#888;font-weight:600;display:block;margin-bottom:6px">AGREGAR PRODUCTO</label>
+                    <input type="text" id="buscarProdCompra" placeholder="🔍 Buscar por nombre o código..."
+                        style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box"
+                        autocomplete="off">
+                    <div id="dropdownProd" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:white;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:100;max-height:220px;overflow-y:auto;border:1px solid #f0f0f0"></div>
+                </div>
 
-                <!-- Tabla carrito -->
-                <h2 class="carrito-title">Productos a comprar</h2>
-                <table class="carrito-table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio compra</th>
-                            <th>Subtotal</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="carritoList"></tbody>
-                </table>
+                <!-- Lista productos compra -->
+                <div id="listaCompra" style="margin-bottom:16px;min-height:60px">
+                    <div id="listaVaciaMsg" style="text-align:center;padding:24px;color:#ccc">
+                        <p style="font-size:28px">🛍️</p>
+                        <p style="font-size:13px;margin-top:6px">Busca y agrega productos</p>
+                    </div>
+                </div>
+
+                <!-- Total y botón -->
+                <div style="border-top:2px solid #f5f5f5;padding-top:14px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                        <span style="font-size:15px;color:#666">Total de compra</span>
+                        <span style="font-size:24px;font-weight:900;color:#FF8500" id="totalCompraDisplay">$0.00</span>
+                    </div>
+                    <button onclick="registrarCompra()" style="width:100%;padding:14px;background:linear-gradient(135deg,#FF8500,#ff6f00);color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:0.5px">
+                        ✅ Registrar compra
+                    </button>
+                </div>
             </div>
 
-            <div class="ventas-resumen">
-                <h2>Total</h2>
-                <p class="total">$<span id="totalCompra">0.00</span></p>
-                <button id="btnRegistrarCompra">Registrar Compra</button>
+            <!-- HISTORIAL -->
+            <div style="background:white;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap">
+                    <h2 style="font-size:17px;color:#333;display:flex;align-items:center;gap:8px;margin:0">📋 Historial</h2>
+                    <select id="filtroProv" onchange="aplicarFiltroProv()" style="padding:6px 10px;border:1.5px solid #eee;border-radius:8px;font-size:13px;color:#555;outline:none">
+                        <option value="">Todos los proveedores</option>
+                    </select>
+                </div>
+                <div id="historialLista" style="max-height:520px;overflow-y:auto;padding-right:2px"></div>
             </div>
-
-        </section>
+        </div>
     </main>
 </div>
 
-<!-- MODAL NUEVO PROVEEDOR -->
-<div class="modal" id="modalProveedor">
-    <div class="modal-content" style="width:340px; max-width:90%">
-        <h2 style="margin-top:0">Nuevo proveedor</h2>
-        <form id="formProveedor">
-            <input type="text" id="provNombre" placeholder="Nombre *"
-                style="width:100%; margin-bottom:10px; padding:8px; border-radius:6px; border:1px solid #ddd">
-            <input type="text" id="provTelefono" placeholder="Teléfono"
-                style="width:100%; margin-bottom:10px; padding:8px; border-radius:6px; border:1px solid #ddd">
-            <input type="email" id="provEmail" placeholder="Email"
-                style="width:100%; margin-bottom:16px; padding:8px; border-radius:6px; border:1px solid #ddd">
-            <div style="display:flex; gap:8px">
-                <button type="submit" style="flex:1">Guardar</button>
-                <button type="button" id="cerrarModal" style="flex:1">Cancelar</button>
+<!-- MODAL PROVEEDOR RÁPIDO -->
+<!-- MODAL PROVEEDOR RÁPIDO -->
+<div class="modal" id="modalProvRapido">
+    <div class="modal-content" style="max-width:440px">
+        <h2>Nuevo proveedor</h2>
+
+        <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="rpNombre" placeholder="Nombre del proveedor">
+        </div>
+        <div class="form-group">
+            <label>Descripción / Ubicación</label>
+            <textarea id="rpDescripcion" rows="2"
+                placeholder="Ej: Mercado Merced, Local 21"
+                style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box"></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="tel" id="rpTelefono" placeholder="555 123 4567">
             </div>
-        </form>
+            <div class="form-group">
+                <label>Teléfono 2</label>
+                <input type="tel" id="rpTelefono2" placeholder="Opcional">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="rpEmail" placeholder="correo@proveedor.com (opcional)">
+        </div>
+        <div class="modal-btns">
+            <button onclick="cerrarModalProvRapido()" style="background:#eee;color:#555">Cancelar</button>
+            <button onclick="guardarProvRapido()" style="background:#FF8500;color:white">Crear</button>
+        </div>
     </div>
 </div>
 
 <script src="js/config.js"></script>
 <script src="js/session.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if (!ES_ADMIN) window.location.href = "ventas.html"
-    })
-</script>
 <script src="js/dashboard.js"></script>
 <script src="js/compras.js"></script>
 <script src="js/theme.js"></script>
