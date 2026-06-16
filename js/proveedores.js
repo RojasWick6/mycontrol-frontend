@@ -28,8 +28,10 @@ async function cargarTodo() {
         renderProveedores(proveedoresTodos)
 
         if (ES_ADMIN) {
-            var btn = document.getElementById("btnAgregar")
-            if (btn) btn.style.display = "block"
+            var btn1 = document.getElementById("btnAgregar")
+            var btn2 = document.getElementById("btnAgregarWrap")
+            if (btn1) btn1.style.display = "block"
+            if (btn2) btn2.style.display = "block"
         }
     } catch (err) {
         console.error("Error:", err)
