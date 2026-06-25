@@ -39,7 +39,8 @@ form.addEventListener("submit", async (e) => {
         }
 
         sessionStorage.setItem("usuario", JSON.stringify(data.usuario))
-        window.location.href = "dashboard.html"
+        sessionStorage.setItem("sesion_inicio", Date.now().toString())
+        window.location.replace("dashboard.html")
 
     } catch (err) {
         mostrarError("No se pudo conectar con el servidor")
