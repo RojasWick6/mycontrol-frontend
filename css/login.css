@@ -78,3 +78,10 @@ font-weight:bold;
 transform:translateY(-2px);
 
 }
+
+.logo{
+    width: 170px;
+    height: auto;
+    display: block;
+    margin: 0 auto 15px;
+}
