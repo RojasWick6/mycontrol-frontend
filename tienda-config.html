@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Online | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .tienda-seccion {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        }
+        .tienda-seccion h2 {
+            font-size: 17px;
+            color: #333;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .form-field label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .form-field input,
+        .form-field textarea {
+            padding: 10px 12px;
+            border: 1.5px solid #eee;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-field input:focus,
+        .form-field textarea:focus {
+            border-color: #FF8500;
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider {
+            position: absolute;
+            inset: 0;
+            background: #ddd;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .switch-slider:before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 4px;
+            top: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .switch input:checked + .switch-slider { background: #FF8500; }
+        .switch input:checked + .switch-slider:before { transform: translateX(24px); }
+        .toggle-info p { font-size: 14px; font-weight: 700; color: #333; }
+        .toggle-info span { font-size: 12px; color: #aaa; }
+        .url-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .url-box span {
+            flex: 1;
+            font-size: 13px;
+            color: #555;
+            word-break: break-all;
+        }
+        .btn-copiar {
+            padding: 8px 14px;
+            background: #FF8500;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-guardar {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FF8500, #ff6f00);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .prod-card-check {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .prod-card-check.seleccionado {
+            border-color: #FF8500;
+            background: #fff8f0;
+        }
+        .prod-card-check img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .prod-card-check .prod-nombre {
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .prod-card-check .prod-precio {
+            font-size: 12px;
+            color: #FF8500;
+            font-weight: 700;
+        }
+        .prod-card-check .prod-stock {
+            font-size: 11px;
+            color: #aaa;
+        }
+        .check-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .prod-card-check.seleccionado .check-badge {
+            background: #FF8500;
+            color: white;
+        }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-texto">Cargando...</p>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item active" href="tienda-config.html"><span class="icon">🛍️</span><span class="text">Tienda Online</span></a>
+            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1>🛍️ Tienda Online</h1>
+            <div class="topbar-right">
+                <div id="reloj" class="topbar-clock"></div>
+                <span class="topbar-user">👤 <span id="usuarioNombre"></span></span>
+                <button class="btn-salir" id="btnSalir">Salir</button>
+            </div>
+        </header>
+
+        <!-- ESTADO DE LA TIENDA -->
+        <div class="tienda-seccion">
+            <h2>⚡ Estado de tu tienda</h2>
+            <div class="toggle-switch">
+                <label class="switch">
+                    <input type="checkbox" id="tiendaActiva">
+                    <span class="switch-slider"></span>
+                </label>
+                <div class="toggle-info">
+                    <p id="toggleLabel">Tienda desactivada</p>
+                    <span>Activa tu tienda para que los clientes puedan verla</span>
+                </div>
+            </div>
+
+            <div id="urlBox" style="display:none">
+                <p style="font-size:13px;color:#888;margin-bottom:8px;font-weight:600">🔗 ENLACE DE TU TIENDA</p>
+                <div class="url-box">
+                    <span id="urlTienda">—</span>
+                    <button class="btn-copiar" onclick="copiarURL()">📋 Copiar</button>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button onclick="verTienda()" style="padding:8px 16px;background:#f5f5f5;color:#555;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">
+                        👁️ Ver mi tienda
+                    </button>
+                    <button onclick="compartirWhatsApp()" style="padding:8px 16px;background:#25D366;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">
+                        💬 Compartir por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFIGURACIÓN -->
+        <div class="tienda-seccion">
+            <h2>🎨 Personalización</h2>
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Slug (identificador único) *</label>
+                    <input type="text" id="cfgSlug" placeholder="ej: anjeska, misapatos, perfumesmary"
+                        oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+                    <small style="color:#aaa;font-size:11px">Solo letras minúsculas, números y guiones. Sin espacios.</small>
+                </div>
+                <div class="form-field">
+                    <label>Color principal</label>
+                    <input type="color" id="cfgColor" value="#FF8500"
+                        style="height:42px;padding:4px;">
+                </div>
+            </div>
+            <div class="form-field">
+                <label>Descripción del negocio</label>
+                <textarea id="cfgDescripcion" rows="3"
+                    placeholder="Cuéntale a tus clientes de qué se trata tu negocio..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label>WhatsApp de contacto</label>
+                    <input type="tel" id="cfgWhatsapp" placeholder="521XXXXXXXXXX (con código de país)">
+                </div>
+                <div class="form-field">
+                    <label>Instagram (opcional)</label>
+                    <input type="text" id="cfgInstagram" placeholder="@tunegocio">
+                </div>
+            </div>
+            <button class="btn-guardar" onclick="guardarConfig()">
+                💾 Guardar configuración
+            </button>
+        </div>
+
+        <!-- PRODUCTOS EN LA TIENDA -->
+        <div class="tienda-seccion">
+            <h2>📦 Productos en tu tienda</h2>
+            <p style="font-size:13px;color:#888;margin-bottom:16px">
+                Selecciona cuáles de tus productos quieres mostrar en tu tienda pública.
+                Solo aparecerán los que tengan stock disponible.
+            </p>
+            <div id="productosGrid" class="productos-grid">
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc">
+                    <p style="font-size:28px">📦</p>
+                    <p style="margin-top:8px;font-size:13px">Cargando productos...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/tienda-config.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>
