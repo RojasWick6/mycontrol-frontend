@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-texto">Cargando...</p>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="MyControl logo">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item" href="tienda-config.html"><span class="icon">🛍️</span><span class="text">Catálogo</span></a>
+            <a class="menu-item active" href="clientes.html"><span class="icon">🧑‍🤝‍🧑</span><span class="text">Clientes</span></a>
+            <a class="menu-item" href="pedidos.html"><span class="icon">📬</span><span class="text">Pedidos</span></a>
+            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1>Clientes</h1>
+            <div class="topbar-right">
+                <div id="reloj" class="topbar-clock"></div>
+                <button id="btnNuevoCliente" onclick="abrirModalCrear()"
+                    style="display:none;padding:8px 16px;background:#FF8500;color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px">
+                    + Agregar cliente
+                </button>
+                <span class="topbar-user">👤 <span id="usuarioNombre"></span></span>
+                <button class="btn-salir" id="btnSalir">Salir</button>
+            </div>
+        </header>
+
+        <!-- STATS -->
+        <section style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:46px;height:46px;border-radius:12px;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:22px">🧑‍🤝‍🧑</div>
+                <div>
+                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Total clientes</p>
+                    <p style="font-size:22px;font-weight:800;color:#FF8500" id="statTotal">0</p>
+                </div>
+            </div>
+            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:46px;height:46px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:22px">📬</div>
+                <div>
+                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Pedidos totales</p>
+                    <p style="font-size:22px;font-weight:800;color:#27ae60" id="statPedidos">0</p>
+                </div>
+            </div>
+            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:46px;height:46px;border-radius:12px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:22px">🆕</div>
+                <div>
+                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Nuevos este mes</p>
+                    <p style="font-size:22px;font-weight:800;color:#1976d2" id="statNuevos">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- BUSCADOR -->
+        <div style="margin-bottom:16px">
+            <input type="text" id="buscadorClientes" placeholder="🔍 Buscar cliente por nombre, teléfono o email..."
+                oninput="filtrarClientes()"
+                style="width:100%;padding:12px 16px;border:1.5px solid #eee;border-radius:12px;font-size:14px;outline:none;box-sizing:border-box;background:white">
+        </div>
+
+        <!-- LISTA CLIENTES -->
+        <div id="clientesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px"></div>
+    </main>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal" id="modalCliente">
+    <div class="modal-content" style="max-width:440px">
+        <h2 id="modalClienteTitle">Nuevo cliente</h2>
+        <input type="hidden" id="clienteId">
+        <div class="form-group">
+            <label>Nombre completo *</label>
+            <input type="text" id="cliNombre" placeholder="Nombre del cliente">
+        </div>
+        <div class="form-group">
+            <label>Teléfono / WhatsApp</label>
+            <input type="tel" id="cliTelefono" placeholder="Número de contacto">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="cliEmail" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+            <label>Contraseña (para acceso al catálogo)</label>
+            <input type="text" id="cliPassword" placeholder="Contraseña opcional">
+        </div>
+        <div class="modal-btns">
+            <button onclick="cerrarModal()" style="background:#eee;color:#555">Cancelar</button>
+            <button onclick="guardarCliente()" style="background:#FF8500;color:white">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/clientes.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>
