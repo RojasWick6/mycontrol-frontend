@@ -441,3 +441,19 @@ flex-direction:column;
         overflow-x: hidden;
     }
 }
+
+/* ── FIX MENÚ MÓVIL CON MUCHOS MÓDULOS ─────────────────────── */
+@media (max-width: 768px) {
+    .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+    }
+    .menu {
+        overflow-y: auto;
+        flex: 1;
+        padding-bottom: 20px;
+    }
+    .sidebar-header {
+        flex-shrink: 0;
+    }
+}
