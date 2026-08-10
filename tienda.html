@@ -8,36 +8,85 @@
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="cat-header" id="catHeader">
-    <h1 id="catNombre">Cargando...</h1>
-    <p id="catDescripcion"></p>
-    <div class="cat-header-redes" id="catRedes"></div>
+<!-- ── NAVBAR ─────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+    <div class="navbar-inner">
+        <div class="navbar-brand" id="navBrand">🛍️ Catálogo</div>
+
+        <div class="navbar-actions">
+            <!-- Info cliente logueado -->
+            <div id="navClienteInfo" style="display:none" class="nav-cliente-info">
+                <span id="navClienteNombre"></span>
+                <button onclick="cerrarSesionCliente()" class="btn-nav-salir">Salir</button>
+            </div>
+            <!-- Botones sin sesión -->
+            <div id="navAuthBtns">
+                <button onclick="abrirAuth('login')" class="btn-nav-login">Iniciar sesión</button>
+                <button onclick="abrirAuth('registro')" class="btn-nav-registro">Registrarse</button>
+            </div>
+            <!-- Carrito -->
+            <button class="nav-carrito-btn" id="navCarritoBtn" onclick="abrirCarrito()" style="display:none">
+                🛒 <span class="nav-carrito-badge" id="navCarritoBadge">0</span>
+            </button>
+            <!-- Hamburguesa móvil -->
+            <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Menú desplegable móvil -->
+    <div class="nav-menu" id="navMenu">
+        <div id="navMenuClienteInfo" style="display:none" class="nav-menu-cliente">
+            <span id="navMenuNombre"></span>
+            <button onclick="cerrarSesionCliente()" class="btn-nav-salir">Cerrar sesión</button>
+        </div>
+        <div id="navMenuAuthBtns">
+            <button onclick="abrirAuth('login');cerrarMenu()" class="btn-menu-login">Iniciar sesión</button>
+            <button onclick="abrirAuth('registro');cerrarMenu()" class="btn-menu-registro">Crear cuenta</button>
+        </div>
+        <div class="nav-menu-sep"></div>
+        <button class="btn-menu-carrito" id="navMenuCarrito" onclick="abrirCarrito();cerrarMenu()" style="display:none">
+            🛒 Ver carrito <span id="navMenuBadge"></span>
+        </button>
+    </div>
+</nav>
+
+<!-- ── HERO / HEADER ──────────────────────────────────────── -->
+<div class="cat-hero" id="catHero">
+    <div class="cat-hero-inner">
+        <h1 id="catNombre">Cargando...</h1>
+        <p id="catDescripcion"></p>
+        <div class="cat-hero-redes" id="catRedes"></div>
+    </div>
 </div>
 
-<!-- BUSCADOR -->
+<!-- ── BUSCADOR ───────────────────────────────────────────── -->
 <div class="cat-search-wrap">
-    <input type="text" class="cat-search" id="catBuscar"
-        placeholder="🔍 Buscar producto..."
-        oninput="filtrarProductos()">
+    <div class="cat-search-box">
+        <span class="cat-search-icon">🔍</span>
+        <input type="text" class="cat-search" id="catBuscar"
+            placeholder="Buscar producto..."
+            oninput="filtrarProductos()">
+    </div>
 </div>
 
-<!-- CONTENIDO -->
+<!-- ── CONTENIDO ──────────────────────────────────────────── -->
 <div class="cat-main">
     <div class="cat-info-bar">
-        <span id="catContador">Cargando productos...</span>
-        <span id="catClienteInfo"></span>
+        <span id="catContador">Cargando...</span>
+        <span id="catClienteInfoBar"></span>
     </div>
     <div id="catGrid" class="cat-grid"></div>
 </div>
 
-<!-- FAB CARRITO -->
+<!-- ── FAB CARRITO (móvil) ────────────────────────────────── -->
 <button class="carrito-fab" id="carritoFab" onclick="abrirCarrito()">
-    🛒 Ver carrito
+    🛒 <span id="carritoFabLabel">Ver carrito</span>
     <span class="carrito-fab-total" id="carritoFabTotal">$0.00</span>
 </button>
 
-<!-- MODAL CARRITO -->
+<!-- ── MODAL CARRITO ──────────────────────────────────────── -->
 <div class="modal-overlay" id="modalCarrito">
     <div class="modal-sheet">
         <div class="modal-handle"></div>
@@ -46,7 +95,6 @@
         <div class="carrito-resumen" id="carritoResumen" style="display:none">
             <div class="carrito-resumen-fila">
                 <span id="carritoNumItems">0 productos</span>
-                <span></span>
             </div>
             <div class="carrito-resumen-total">
                 <span>Total</span>
@@ -56,20 +104,20 @@
         <button class="btn-pedir" id="btnPedir" onclick="irAPedir()" style="display:none">
             ✅ Enviar solicitud de pedido
         </button>
-        <button onclick="cerrarCarrito()"
-            style="width:100%;padding:12px;background:transparent;color:#aaa;border:none;font-size:14px;cursor:pointer;margin-top:8px">
+        <button onclick="cerrarCarrito()" class="btn-seguir">
             Seguir viendo productos
         </button>
     </div>
 </div>
 
-<!-- MODAL AUTH -->
+<!-- ── MODAL AUTH ──────────────────────────────────────────── -->
 <div class="modal-auth" id="modalAuth">
     <div class="modal-auth-box">
         <div class="modal-auth-tabs">
             <button class="tab-btn active" id="tabLogin" onclick="mostrarTab('login')">Iniciar sesión</button>
-            <button class="tab-btn" id="tabRegistro" onclick="mostrarTab('registro')">Soy nuevo</button>
+            <button class="tab-btn" id="tabRegistro" onclick="mostrarTab('registro')">Crear cuenta</button>
         </div>
+
         <div id="panelLogin">
             <div class="auth-field">
                 <label>Email</label>
@@ -81,14 +129,15 @@
             </div>
             <button class="btn-auth" onclick="hacerLogin()">Entrar</button>
         </div>
+
         <div id="panelRegistro" style="display:none">
             <div class="auth-field">
                 <label>Nombre completo *</label>
                 <input type="text" id="regNombre" placeholder="Tu nombre">
             </div>
             <div class="auth-field">
-                <label>Teléfono *</label>
-                <input type="tel" id="regTelefono" placeholder="Tu número de WhatsApp">
+                <label>Teléfono (WhatsApp) *</label>
+                <input type="tel" id="regTelefono" placeholder="55 1234 5678">
             </div>
             <div class="auth-field">
                 <label>Email *</label>
@@ -96,20 +145,21 @@
             </div>
             <div class="auth-field">
                 <label>Contraseña *</label>
-                <input type="password" id="regPassword" placeholder="Crea una contraseña">
+                <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres">
             </div>
-            <button class="btn-auth" onclick="hacerRegistro()">Crear cuenta y pedir</button>
+            <button class="btn-auth" onclick="hacerRegistro()">Crear cuenta</button>
         </div>
+
         <button class="btn-cancelar-auth" onclick="cerrarAuth()">Cancelar</button>
     </div>
 </div>
 
-<!-- MODAL CONFIRMACIÓN -->
+<!-- ── MODAL CONFIRMACIÓN ─────────────────────────────────── -->
 <div class="modal-confirm" id="modalConfirm">
     <div class="modal-confirm-box">
         <div class="icono">🎉</div>
         <h2>¡Pedido enviado!</h2>
-        <p id="confirmMsg">Tu solicitud fue enviada al vendedor.</p>
+        <p id="confirmMsg">Tu solicitud fue enviada al vendedor. Pronto se pondrá en contacto contigo.</p>
         <a id="btnWaConfirm" href="#" target="_blank" class="btn-whatsapp">
             💬 Escribir por WhatsApp
         </a>

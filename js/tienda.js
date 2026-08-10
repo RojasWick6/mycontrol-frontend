@@ -21,6 +21,25 @@ window.addEventListener("DOMContentLoaded", async function() {
     await cargarTienda()
 })
 
+
+// ── MENÚ HAMBURGUESA ──────────────────────────────────────────
+function toggleMenu() {
+    var menu = document.getElementById("navMenu")
+    menu.classList.toggle("open")
+}
+function cerrarMenu() {
+    document.getElementById("navMenu").classList.remove("open")
+}
+
+// Cerrar menú al hacer click fuera
+document.addEventListener("click", function(e) {
+    var menu = document.getElementById("navMenu")
+    var hamburger = document.getElementById("hamburger")
+    if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+        menu.classList.remove("open")
+    }
+})
+
 // ── CARGAR TIENDA ─────────────────────────────────────────────
 async function cargarTienda() {
     try {
@@ -34,10 +53,13 @@ async function cargarTienda() {
         // Aplicar color personalizado
         document.documentElement.style.setProperty("--color", tiendaData.color_primario || "#FF8500")
 
-        // Llenar header
-        document.title                          = tiendaData.nombre_negocio + " — Catálogo"
+        // Llenar header y navbar brand
+        document.title                                      = tiendaData.nombre_negocio + " — Catálogo"
         document.getElementById("catNombre").textContent      = tiendaData.nombre_negocio
         document.getElementById("catDescripcion").textContent = tiendaData.descripcion || ""
+        
+        var navBrand = document.getElementById("navBrand")
+        if (navBrand) navBrand.textContent = "🛍️ " + tiendaData.nombre_negocio
 
         // Redes sociales
         var redes = document.getElementById("catRedes")
@@ -74,13 +96,18 @@ function renderProductos(lista) {
         return
     }
 
-    contador.innerHTML = "<strong>" + lista.length + "</strong> producto" + (lista.length !== 1 ? "s" : "") + " disponibles"
+    contador.innerHTML =
+        "<strong>" + lista.length + "</strong> producto" +
+        (lista.length !== 1 ? "s" : "") +
+        " disponibles"
 
     lista.forEach(function(p) {
-        var enCarrito = carrito.find(function(c) { return c.id === p.id })
-        var cantidad  = enCarrito ? enCarrito.cantidad : 0
-        var agotado   = p.stock <= 0
+        var enCarrito = carrito.find(function(c) {
+            return c.id === p.id
+        })
 
+        var cantidad = enCarrito ? enCarrito.cantidad : 0
+        var agotado = p.stock <= 0
         var imgSrc = p.imagen_url || ""
 
         var card = document.createElement("div")
@@ -88,22 +115,67 @@ function renderProductos(lista) {
         card.id = "card-" + p.id
 
         card.innerHTML =
-            (cantidad > 0 ? '<div class="cat-card-qty-badge">' + cantidad + '</div>' : '') +
-            (agotado ? '<div class="cat-card-agotado-badge">Agotado</div>' : '') +
-            '<img class="cat-card-img" src="' + imgSrc + '" onerror="this.src=\'\';this.style.background=\'#f0f0f0\'" alt="' + p.nombre + '">' +
+            (cantidad > 0
+                ? '<div class="cat-card-qty-badge">' + cantidad + '</div>'
+                : '') +
+
+            (agotado
+                ? '<div class="cat-card-agotado-badge">Agotado</div>'
+                : '') +
+
+            '<img class="cat-card-img" ' +
+                'src="' + imgSrc + '" ' +
+                'onerror="this.src=\'\';this.style.background=\'#f0f0f0\'" ' +
+                'alt="' + p.nombre + '">' +
+
             '<div class="cat-card-body">' +
-                '<div class="cat-card-nombre">' + p.nombre + '</div>' +
-                '<div class="cat-card-precio">$' + parseFloat(p.precio).toFixed(2) + '</div>' +
-                '<div class="cat-card-stock">' + (agotado ? "⚠️ Sin stock" : "✅ Disponible — " + p.stock + " uds") + '</div>' +
-                (agotado ? '' :
-                '<div class="cat-card-controles">' +
-                    '<button class="btn-menos" onclick="cambiarCantidad(' + p.id + ', -1)" ' + (cantidad === 0 ? 'disabled' : '') + '>−</button>' +
-                    '<span class="cat-card-cant" id="cant-' + p.id + '">' + cantidad + '</span>' +
-                    '<button class="btn-mas" onclick="cambiarCantidad(' + p.id + ', 1)">+</button>' +
-                    (cantidad === 0
-                        ? '<button class="btn-agregar" onclick="cambiarCantidad(' + p.id + ', 1)">Agregar</button>'
-                        : '') +
-                '</div>') +
+
+                '<div class="cat-card-nombre">' +
+                    p.nombre +
+                '</div>' +
+
+                '<div class="cat-card-precio">' +
+                    '$' + parseFloat(p.precio).toFixed(2) +
+                '</div>' +
+
+                '<div class="cat-card-stock">' +
+                    (agotado
+                        ? "⚠️ Sin stock"
+                        : "✅ Disponible — " + p.stock + " uds") +
+                '</div>' +
+
+                (agotado
+                    ? ''
+                    :
+                    '<div class="cat-card-controles">' +
+
+                        '<div class="cat-card-cantidad">' +
+
+                            '<button class="btn-menos" ' +
+                                'onclick="cambiarCantidad(' + p.id + ', -1)" ' +
+                                (cantidad === 0 ? 'disabled' : '') +
+                            '>−</button>' +
+
+                            '<span class="cat-card-cant" id="cant-' + p.id + '">' +
+                                cantidad +
+                            '</span>' +
+
+                            '<button class="btn-mas" ' +
+                                'onclick="cambiarCantidad(' + p.id + ', 1)"' +
+                            '>+</button>' +
+
+                        '</div>' +
+
+                        (cantidad === 0
+                            ? '<button class="btn-agregar" ' +
+                                'onclick="cambiarCantidad(' + p.id + ', 1)">' +
+                                'Agregar' +
+                              '</button>'
+                            : '') +
+
+                    '</div>'
+                ) +
+
             '</div>'
 
         grid.appendChild(card)
@@ -161,6 +233,19 @@ function actualizarFab() {
     if (items > 0) {
         fab.style.display = "flex"
         document.getElementById("carritoFabTotal").textContent = "$" + total.toFixed(2)
+        // Badge navbar
+        var badge = document.getElementById("navCarritoBadge")
+        if (badge) badge.textContent = items
+        // Badge menú móvil
+        var menuBadge = document.getElementById("navMenuBadge")
+        if (menuBadge) menuBadge.textContent = items + " items — $" + total.toFixed(2)
+        // Mostrar botón carrito en navbar si hay sesión
+        if (clienteSession) {
+            var navCarrito = document.getElementById("navCarritoBtn")
+            if (navCarrito) navCarrito.style.display = "flex"
+            var menuCarrito = document.getElementById("navMenuCarrito")
+            if (menuCarrito) menuCarrito.style.display = "flex"
+        }
     } else {
         fab.style.display = "none"
     }
@@ -217,6 +302,12 @@ function irAPedir() {
         document.getElementById("modalAuth").classList.add("active")
     }
 }
+
+function abrirAuth(tab) {
+    mostrarTab(tab || "login")
+    document.getElementById("modalAuth").classList.add("active")
+}
+
 
 // ── AUTH CLIENTE ──────────────────────────────────────────────
 function mostrarTab(tab) {
@@ -338,11 +429,42 @@ function cerrarConfirm() {
 
 // ── INFO CLIENTE LOGUEADO ─────────────────────────────────────
 function actualizarClienteInfo() {
-    var el = document.getElementById("catClienteInfo")
-    if (clienteSession) {
-        el.innerHTML = '👤 <strong>' + clienteSession.nombre + '</strong> &nbsp;|&nbsp; <a href="#" onclick="cerrarSesionCliente()" style="color:#aaa;font-size:12px">Salir</a>'
+    var nombre = clienteSession ? clienteSession.nombre : null
+
+    // Navbar desktop
+    var navInfo = document.getElementById("navClienteInfo")
+    var navAuth = document.getElementById("navAuthBtns")
+    var navCarrito = document.getElementById("navCarritoBtn")
+    if (nombre) {
+        navInfo.style.display = "flex"
+        navAuth.style.display = "none"
+        navCarrito.style.display = "flex"
+        document.getElementById("navClienteNombre").textContent = "👤 " + nombre
     } else {
-        el.textContent = ""
+        navInfo.style.display = "none"
+        navAuth.style.display = "flex"
+        navCarrito.style.display = "none"
+    }
+
+    // Menú móvil
+    var menuInfo = document.getElementById("navMenuClienteInfo")
+    var menuAuth = document.getElementById("navMenuAuthBtns")
+    var menuCarrito = document.getElementById("navMenuCarrito")
+    if (nombre) {
+        menuInfo.style.display = "flex"
+        menuAuth.style.display = "none"
+        menuCarrito.style.display = "flex"
+        document.getElementById("navMenuNombre").textContent = "👤 " + nombre
+    } else {
+        menuInfo.style.display = "none"
+        menuAuth.style.display = "block"
+        menuCarrito.style.display = "none"
+    }
+
+    // Info bar
+    var infoBar = document.getElementById("catClienteInfoBar")
+    if (infoBar) {
+        infoBar.textContent = nombre ? "Hola, " + nombre : ""
     }
 }
 
