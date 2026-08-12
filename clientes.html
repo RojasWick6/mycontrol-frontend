@@ -7,6 +7,104 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/dashboard.css">
+
+
+<style>
+.cliente-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.cliente-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+.cliente-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.cliente-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: white;
+    flex-shrink: 0;
+}
+.cliente-header-info { flex: 1; min-width: 0; }
+.cliente-nombre {
+    font-size: 16px;
+    font-weight: 800;
+    color: #333;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.cliente-fecha { font-size: 12px; color: #aaa; margin-top: 3px; }
+.cliente-contacto {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 12px;
+}
+.cliente-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.cliente-stat {
+    text-align: center;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1.5px solid transparent;
+}
+.stat-num {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.stat-label { font-size: 11px; color: #888; }
+.cliente-acciones {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.btn-cli {
+    padding: 9px 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+.btn-cli:hover { opacity: 0.82; }
+.btn-cli-historial { flex: 1; background: #e3f2fd; color: #1976d2; }
+.btn-cli-asociar   { flex: 1; background: #fff3e0; color: #FF8500; }
+.btn-cli-edit      { background: #f5f5f5; color: #555; }
+.btn-cli-del       { background: #fff0f0; color: #e74c3c; border: 1px solid #ffcdd2; }
+
+@media (max-width: 600px) {
+    .cliente-acciones { flex-direction: column; }
+    .btn-cli-historial,
+    .btn-cli-asociar   { flex: none; width: 100%; }
+    .cliente-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+
 </head>
 <body>
 <div class="loading-overlay" id="loadingOverlay">
@@ -49,26 +147,33 @@
         </header>
 
         <!-- STATS -->
-        <section style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
-            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
-                <div style="width:46px;height:46px;border-radius:12px;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:22px">🧑‍🤝‍🧑</div>
+        <section style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px">
+            <div style="background:white;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:42px;height:42px;border-radius:12px;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧑‍🤝‍🧑</div>
                 <div>
-                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Total clientes</p>
+                    <p style="font-size:11px;color:#aaa;margin-bottom:2px">Total clientes</p>
                     <p style="font-size:22px;font-weight:800;color:#FF8500" id="statTotal">0</p>
                 </div>
             </div>
-            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
-                <div style="width:46px;height:46px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:22px">💰</div>
+            <div style="background:white;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:42px;height:42px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💰</div>
                 <div>
-                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Total facturado</p>
-                    <p style="font-size:22px;font-weight:800;color:#27ae60" id="statFacturado">$0.00</p>
+                    <p style="font-size:11px;color:#aaa;margin-bottom:2px">Total facturado</p>
+                    <p style="font-size:20px;font-weight:800;color:#27ae60" id="statFacturado">$0.00</p>
                 </div>
             </div>
-            <div style="background:white;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
-                <div style="width:46px;height:46px;border-radius:12px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:22px">🆕</div>
+            <div style="background:white;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:42px;height:42px;border-radius:12px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🆕</div>
                 <div>
-                    <p style="font-size:12px;color:#aaa;margin-bottom:2px">Nuevos este mes</p>
-                    <p style="font-size:22px;font-weight:800;color:#1976d2" id="statNuevos">0</p>
+                    <p style="font-size:11px;color:#aaa;margin-bottom:2px">Nuevos este mes</p>
+                    <p style="font-size:20px;font-weight:800;color:#1976d2" id="statNuevos">0</p>
+                </div>
+            </div>
+            <div style="background:white;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+                <div style="width:42px;height:42px;border-radius:12px;background:#fce4ec;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⭐</div>
+                <div style="min-width:0">
+                    <p style="font-size:11px;color:#aaa;margin-bottom:2px">Mejor cliente</p>
+                    <p style="font-size:16px;font-weight:800;color:#e91e63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="statTopCliente">—</p>
                 </div>
             </div>
         </section>
@@ -129,6 +234,20 @@
         <div id="historialContenido"></div>
         <div class="modal-btns" style="margin-top:16px">
             <button onclick="cerrarHistorial()" style="background:#eee;color:#555;width:100%">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ASOCIAR VENTA -->
+<div class="modal" id="modalAsociar">
+    <div class="modal-content" style="max-width:500px">
+        <h2 id="asociarTitle">Asociar venta</h2>
+        <p style="font-size:13px;color:#888;margin-top:-8px;margin-bottom:16px">
+            Selecciona una venta sin cliente asignado para vincularla a este cliente.
+        </p>
+        <div id="asociarLista" style="max-height:360px;overflow-y:auto"></div>
+        <div class="modal-btns" style="margin-top:16px">
+            <button onclick="cerrarAsociar()" style="background:#eee;color:#555;width:100%">Cancelar</button>
         </div>
     </div>
 </div>

@@ -626,13 +626,17 @@ body {
 .btn-seguir {
     width: 100%;
     padding: 13px;
-    background: transparent;
-    color: #aaa;
+    background: #f5f5f5;
+    color: #666;
     border: none;
+    border-radius: 12px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     margin-top: 10px;
+    transition: background 0.2s;
 }
+.btn-seguir:hover { background: #eee; }
 
 /* ── MODAL AUTH ─────────────────────────────────────────────── */
 .modal-auth {
@@ -811,17 +815,15 @@ body {
 
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    /* Navbar: mostrar hamburguesa, ocultar botones de escritorio */
-    .hamburger        { display: flex; }
-    #navAuthBtns      { display: none; }
-    #navClienteInfo   { display: none !important; }
-    .nav-carrito-btn  { display: none !important; }
+    .hamburger       { display: flex !important; }
+    #navAuthBtns     { display: none !important; }
+    #navClienteInfo  { display: none !important; }
+    .nav-carrito-btn { display: none !important; }
 }
 
 @media (min-width: 769px) {
-    /* Desktop: ocultar hamburguesa y menú móvil */
-    .hamburger { display: none; }
-    .nav-menu  { display: none !important; }
+    .hamburger        { display: none !important; }
+    .nav-menu         { display: none !important; }
 }
 
 @media (max-width: 600px) {

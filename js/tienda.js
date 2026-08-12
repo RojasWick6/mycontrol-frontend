@@ -322,18 +322,18 @@ function cerrarAuth() {
 }
 
 async function hacerLogin() {
-    var email    = document.getElementById("loginEmail").value.trim()
+    var telefono = document.getElementById("loginTelefono").value.trim()
     var password = document.getElementById("loginPassword").value.trim()
-    if (!email || !password) { alert("Completa todos los campos"); return }
+    if (!telefono || !password) { alert("Completa todos los campos"); return }
 
     try {
         const res  = await fetch(API_URL + "/clientes-tienda/login", {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ email, password, empresa_id: tiendaData.empresa_id })
+            body:    JSON.stringify({ telefono, password, empresa_id: tiendaData.empresa_id })
         })
         const data = await res.json()
-        if (!res.ok) { alert(data.error || "Credenciales incorrectas"); return }
+        if (!res.ok) { alert(data.error || "Número o contraseña incorrectos"); return }
 
         clienteSession = data.cliente
         sessionStorage.setItem("cliente_" + slug, JSON.stringify(clienteSession))
@@ -348,16 +348,16 @@ async function hacerLogin() {
 async function hacerRegistro() {
     var nombre   = document.getElementById("regNombre").value.trim()
     var telefono = document.getElementById("regTelefono").value.trim()
-    var email    = document.getElementById("regEmail").value.trim()
     var password = document.getElementById("regPassword").value.trim()
 
-    if (!nombre || !telefono || !email || !password) { alert("Completa todos los campos"); return }
+    if (!nombre || !telefono || !password) { alert("Completa todos los campos"); return }
+    if (password.length < 4) { alert("La contraseña debe tener al menos 4 caracteres"); return }
 
     try {
         const res  = await fetch(API_URL + "/clientes-tienda/registro", {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ nombre, telefono, email, password, empresa_id: tiendaData.empresa_id })
+            body:    JSON.stringify({ nombre, telefono, password, empresa_id: tiendaData.empresa_id })
         })
         const data = await res.json()
         if (!res.ok) { alert(data.error || "Error al registrarse"); return }

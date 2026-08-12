@@ -104,8 +104,8 @@
         <button class="btn-pedir" id="btnPedir" onclick="irAPedir()" style="display:none">
             ✅ Enviar solicitud de pedido
         </button>
-        <button onclick="cerrarCarrito()" class="btn-seguir">
-            Seguir viendo productos
+        <button class="btn-seguir" onclick="cerrarCarrito()">
+            ← Seguir viendo productos
         </button>
     </div>
 </div>
@@ -120,8 +120,8 @@
 
         <div id="panelLogin">
             <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="tu@correo.com">
+                <label>Tu WhatsApp</label>
+                <input type="tel" id="loginTelefono" placeholder="55 1234 5678">
             </div>
             <div class="auth-field">
                 <label>Contraseña</label>
@@ -132,22 +132,21 @@
 
         <div id="panelRegistro" style="display:none">
             <div class="auth-field">
-                <label>Nombre completo *</label>
-                <input type="text" id="regNombre" placeholder="Tu nombre">
+                <label>¿Cómo te llamamos? *</label>
+                <input type="text" id="regNombre" placeholder="Tu nombre o apodo">
             </div>
             <div class="auth-field">
-                <label>Teléfono (WhatsApp) *</label>
+                <label>Tu WhatsApp *</label>
                 <input type="tel" id="regTelefono" placeholder="55 1234 5678">
             </div>
             <div class="auth-field">
-                <label>Email *</label>
-                <input type="email" id="regEmail" placeholder="tu@correo.com">
-            </div>
-            <div class="auth-field">
                 <label>Contraseña *</label>
-                <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres">
+                <input type="password" id="regPassword" placeholder="Mínimo 4 caracteres">
             </div>
-            <button class="btn-auth" onclick="hacerRegistro()">Crear cuenta</button>
+            <p style="font-size:11px;color:#bbb;margin-bottom:10px;line-height:1.5">
+                Con tu número de WhatsApp podrás iniciar sesión y el vendedor podrá contactarte cuando tu pedido esté listo.
+            </p>
+            <button class="btn-auth" onclick="hacerRegistro()">Crear cuenta y pedir</button>
         </div>
 
         <button class="btn-cancelar-auth" onclick="cerrarAuth()">Cancelar</button>
