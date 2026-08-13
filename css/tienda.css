@@ -849,3 +849,24 @@ body {
 @media (max-width: 340px) {
     .cat-grid { grid-template-columns: 1fr; }
 }
+
+/* ── PAGINACIÓN CATÁLOGO ─────────────────────────────────────── */
+.pag-cat-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1.5px solid #eee;
+    background: white;
+    color: #555;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pag-cat-btn:hover   { border-color: var(--color); color: var(--color); }
+.pag-cat-btn.active  { background: var(--color); border-color: var(--color); color: white; }
+.pag-cat-btn:disabled { opacity: 0.3; cursor: default; }
+.pag-cat-dots { color: #ccc; font-size: 14px; padding: 0 4px; }

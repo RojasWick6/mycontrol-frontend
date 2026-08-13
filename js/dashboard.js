@@ -2,6 +2,37 @@ const toggle  = document.getElementById("menuToggle")
 const sidebar = document.getElementById("sidebar")
 const overlay = document.getElementById("sidebarOverlay")
 
+
+// ── FORMATO DE NÚMEROS ────────────────────────────────────────
+function formatNum(num) {
+    var n = parseFloat(num) || 0
+    return n.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function numATexto(num) {
+    var n = Math.abs(Math.round(parseFloat(num) || 0))
+    if (n === 0) return "cero"
+    if (n < 1000) return n + ""
+    if (n < 1000000) {
+        var miles = Math.floor(n / 1000)
+        var resto = n % 1000
+        return miles + " mil" + (resto > 0 ? " " + resto : "")
+    }
+    var millones = Math.floor(n / 1000000)
+    var resto    = Math.round((n % 1000000) / 1000)
+    return millones + " millón" + (millones > 1 ? "es" : "") + (resto > 0 ? " " + resto + " mil" : "")
+}
+
+function setCardNum(elId, subElId, valor, esDinero) {
+    var el    = document.getElementById(elId)
+    var subEl = document.getElementById(subElId)
+    if (!el) return
+    el.textContent = esDinero ? "$" + formatNum(valor) : formatNum(valor).replace(/\.00$/, "")
+    if (subEl) subEl.textContent = numATexto(valor) + (esDinero ? " pesos" : " unidades")
+}
+
+
+
 function abrirSidebar() {
     sidebar.classList.add("active")
     if (overlay) overlay.classList.add("active")
@@ -159,8 +190,12 @@ async function cargarVentasHoy() {
             return fechaMx === hoyStr
         })
 
-        const total    = ventasHoy.reduce(function(acc, v) { return acc + Number(v.total) }, 0)
-        el.textContent = "$" + total.toFixed(2)
+        const total = ventasHoy.reduce(function(acc, v) {
+            return acc + Number(v.total)
+        }, 0)
+
+        setCardNum("ventasHoy", "ventasHoyTexto", total, true)
+
     } catch (err) {
         console.error("Error ventas hoy:", err)
     }
