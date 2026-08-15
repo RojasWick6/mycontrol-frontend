@@ -2,6 +2,13 @@ var configActual     = null
 var productosLista   = []
 var seleccionados    = new Set()
 
+var ITEMS_CONFIG_PAG = 12
+var paginaConfig     = 1
+var productosFiltradosConfig = []
+
+
+
+
 // ── INIT ──────────────────────────────────────────────────────
 async function init() {
     // Solo admin puede configurar la tienda
@@ -65,19 +72,29 @@ async function cargarProductos() {
 
 // ── RENDER PRODUCTOS ──────────────────────────────────────────
 function renderProductos() {
-    var grid = document.getElementById("productosGrid")
+    productosFiltradosConfig = productosLista
+    paginaConfig = 1
+    renderPaginaConfig()
+}
+
+function renderPaginaConfig() {
+    var lista  = productosFiltradosConfig
+    var total  = Math.ceil(lista.length / ITEMS_CONFIG_PAG)
+    var inicio = (paginaConfig - 1) * ITEMS_CONFIG_PAG
+    var pagina = lista.slice(inicio, inicio + ITEMS_CONFIG_PAG)
+    var grid   = document.getElementById("productosGrid")
     grid.innerHTML = ""
 
-    if (productosLista.length === 0) {
+    if (lista.length === 0) {
         grid.innerHTML =
             '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc">' +
             '<p style="font-size:28px">📦</p>' +
-            '<p style="margin-top:8px;font-size:13px">No tienes productos en tu inventario todavía</p>' +
+            '<p style="margin-top:8px;font-size:13px">No tienes productos en el inventario</p>' +
             '</div>'
         return
     }
 
-    productosLista.forEach(function(p) {
+    pagina.forEach(function(p) {
         var esSel  = seleccionados.has(p.id)
         var imgSrc = p.imagen_url ? p.imagen_url : "assets/img/no-image.png"
 
@@ -90,12 +107,43 @@ function renderProductos() {
             '<img src="' + imgSrc + '" onerror="this.src=\'assets/img/no-image.png\'">' +
             '<div class="prod-nombre">' + p.nombre + '</div>' +
             '<div class="prod-precio">$' + parseFloat(p.precio).toFixed(2) + '</div>' +
-            '<div class="prod-stock">' +
-                (p.stock > 0 ? "📦 " + p.stock + " en stock" : "⚠️ Sin stock") +
-            '</div>'
+            '<div class="prod-stock">' + (p.stock > 0 ? "📦 " + p.stock + " en stock" : "⚠️ Sin stock") + '</div>'
 
         grid.appendChild(card)
     })
+
+    // Paginación
+    var contPag = document.getElementById("productosConfigPag")
+    if (!contPag) return
+    contPag.innerHTML = ""
+    if (total <= 1) return
+
+    var btnPrev = document.createElement("button")
+    btnPrev.className   = "pag-btn"
+    btnPrev.textContent = "‹"
+    btnPrev.disabled    = paginaConfig === 1
+    btnPrev.onclick     = function() { paginaConfig--; renderPaginaConfig() }
+    contPag.appendChild(btnPrev)
+
+    for (var i = 1; i <= total; i++) {
+        var btn = document.createElement("button")
+        btn.className   = "pag-btn" + (i === paginaConfig ? " active" : "")
+        btn.textContent = i
+        btn.onclick     = (function(num) { return function() { paginaConfig = num; renderPaginaConfig() } })(i)
+        contPag.appendChild(btn)
+    }
+
+    var btnNext = document.createElement("button")
+    btnNext.className   = "pag-btn"
+    btnNext.textContent = "›"
+    btnNext.disabled    = paginaConfig === total
+    btnNext.onclick     = function() { paginaConfig++; renderPaginaConfig() }
+    contPag.appendChild(btnNext)
+
+    var info = document.createElement("span")
+    info.className   = "pag-info"
+    info.textContent = lista.length + " productos"
+    contPag.appendChild(info)
 }
 
 // ── TOGGLE PRODUCTO ───────────────────────────────────────────

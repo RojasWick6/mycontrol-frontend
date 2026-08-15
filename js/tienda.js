@@ -6,6 +6,12 @@ var todosProductos = []
 var carrito        = []   // { id, nombre, precio, stock, imagen_url, cantidad }
 var clienteSession = null // { id, nombre, telefono, email, empresa_id }
 
+var ITEMS_POR_PAGINA = 12
+var paginaActual     = 1
+var listaActiva      = []
+
+
+
 // ── ARRANQUE ─────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async function() {
     if (!slug) {
@@ -84,111 +90,122 @@ async function cargarTienda() {
 
 // ── RENDER PRODUCTOS ──────────────────────────────────────────
 function renderProductos(lista) {
-    var grid = document.getElementById("catGrid")
+    listaActiva  = lista
+    var total    = Math.ceil(lista.length / ITEMS_POR_PAGINA)
+    var inicio   = (paginaActual - 1) * ITEMS_POR_PAGINA
+    var pagina   = lista.slice(inicio, inicio + ITEMS_POR_PAGINA)
+
+    var grid     = document.getElementById("catGrid")
     var contador = document.getElementById("catContador")
     grid.innerHTML = ""
 
+    contador.innerHTML = "<strong>" + lista.length + "</strong> producto" +
+        (lista.length !== 1 ? "s" : "") +
+        (total > 1 ? " · Página " + paginaActual + " de " + total : "")
+
     if (lista.length === 0) {
-        contador.textContent = "Sin productos disponibles"
-        grid.innerHTML =
-            '<div class="cat-empty" style="grid-column:1/-1">' +
-            '<p>🛍️</p><p>No hay productos en este catálogo todavía</p></div>'
+        grid.innerHTML = '<div class="cat-empty" style="grid-column:1/-1"><p>🛍️</p><p>Sin productos disponibles</p></div>'
+        renderPaginacionCat(0)
         return
     }
 
-    contador.innerHTML =
-        "<strong>" + lista.length + "</strong> producto" +
-        (lista.length !== 1 ? "s" : "") +
-        " disponibles"
-
-    lista.forEach(function(p) {
-        var enCarrito = carrito.find(function(c) {
-            return c.id === p.id
-        })
-
-        var cantidad = enCarrito ? enCarrito.cantidad : 0
-        var agotado = p.stock <= 0
-        var imgSrc = p.imagen_url || ""
+    pagina.forEach(function(p) {
+        var enCarrito = carrito.find(function(c) { return c.id === p.id })
+        var cantidad  = enCarrito ? enCarrito.cantidad : 0
+        var agotado   = p.stock <= 0
+        var imgSrc    = p.imagen_url || ""
 
         var card = document.createElement("div")
         card.className = "cat-card" + (agotado ? " agotado" : "")
         card.id = "card-" + p.id
 
         card.innerHTML =
-            (cantidad > 0
-                ? '<div class="cat-card-qty-badge">' + cantidad + '</div>'
-                : '') +
-
-            (agotado
-                ? '<div class="cat-card-agotado-badge">Agotado</div>'
-                : '') +
-
-            '<img class="cat-card-img" ' +
-                'src="' + imgSrc + '" ' +
-                'onerror="this.src=\'\';this.style.background=\'#f0f0f0\'" ' +
-                'alt="' + p.nombre + '">' +
-
+            '<div class="cat-card-img-wrap">' +
+                (cantidad > 0 ? '<div class="cat-card-qty-badge">' + cantidad + '</div>' : '') +
+                (agotado ? '<div class="cat-card-agotado-badge">Agotado</div>' : '') +
+                '<img class="cat-card-img" src="' + imgSrc + '" ' +
+                    'onerror="this.src=\'\';this.style.background=\'#f0f0f4\'" alt="' + p.nombre + '">' +
+            '</div>' +
             '<div class="cat-card-body">' +
-
-                '<div class="cat-card-nombre">' +
-                    p.nombre +
-                '</div>' +
-
-                '<div class="cat-card-precio">' +
-                    '$' + parseFloat(p.precio).toFixed(2) +
-                '</div>' +
-
-                '<div class="cat-card-stock">' +
-                    (agotado
-                        ? "⚠️ Sin stock"
-                        : "✅ Disponible — " + p.stock + " uds") +
-                '</div>' +
-
-                (agotado
-                    ? ''
-                    :
-                    '<div class="cat-card-controles">' +
-
-                        '<div class="cat-card-cantidad">' +
-
-                            '<button class="btn-menos" ' +
-                                'onclick="cambiarCantidad(' + p.id + ', -1)" ' +
-                                (cantidad === 0 ? 'disabled' : '') +
-                            '>−</button>' +
-
-                            '<span class="cat-card-cant" id="cant-' + p.id + '">' +
-                                cantidad +
-                            '</span>' +
-
-                            '<button class="btn-mas" ' +
-                                'onclick="cambiarCantidad(' + p.id + ', 1)"' +
-                            '>+</button>' +
-
-                        '</div>' +
-
-                        (cantidad === 0
-                            ? '<button class="btn-agregar" ' +
-                                'onclick="cambiarCantidad(' + p.id + ', 1)">' +
-                                'Agregar' +
-                              '</button>'
-                            : '') +
-
-                    '</div>'
+                '<div class="cat-card-nombre">' + p.nombre + '</div>' +
+                '<div class="cat-card-precio">$' + parseFloat(p.precio).toFixed(2) + '</div>' +
+                '<div class="cat-card-stock">' + (agotado ? "⚠️ Sin stock" : "✅ " + p.stock + " disponibles") + '</div>' +
+                (agotado ? '' :
+                    cantidad === 0
+                    ? '<div class="cat-card-controles con-agregar"><button class="btn-agregar" onclick="cambiarCantidad(' + p.id + ',1)">+ Agregar</button></div>'
+                    : '<div class="cat-card-controles">' +
+                        '<button class="btn-menos" onclick="cambiarCantidad(' + p.id + ',-1)" ' + (cantidad===0?'disabled':'') + '>−</button>' +
+                        '<span class="cat-card-cant">' + cantidad + '</span>' +
+                        '<button class="btn-mas"  onclick="cambiarCantidad(' + p.id + ',1)">+</button>' +
+                      '</div>'
                 ) +
-
             '</div>'
 
         grid.appendChild(card)
     })
+
+    renderPaginacionCat(total)
+}
+
+function renderPaginacionCat(total) {
+    var cont = document.getElementById("catPaginacion")
+    if (!cont) return
+    cont.innerHTML = ""
+    if (total <= 1) return
+
+    var btnPrev = document.createElement("button")
+    btnPrev.className   = "pag-cat-btn"
+    btnPrev.textContent = "‹"
+    btnPrev.disabled    = paginaActual === 1
+    btnPrev.onclick     = function() {
+        paginaActual--
+        renderProductos(listaActiva)
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+    cont.appendChild(btnPrev)
+
+    for (var i = 1; i <= total; i++) {
+        if (total > 7 && i > 2 && i < total-1 && Math.abs(i - paginaActual) > 1) {
+            if (i === 3 || i === total-2) {
+                var dots = document.createElement("span")
+                dots.className   = "pag-cat-dots"
+                dots.textContent = "…"
+                cont.appendChild(dots)
+            }
+            continue
+        }
+        var btn = document.createElement("button")
+        btn.className   = "pag-cat-btn" + (i === paginaActual ? " active" : "")
+        btn.textContent = i
+        btn.onclick     = (function(num) {
+            return function() {
+                paginaActual = num
+                renderProductos(listaActiva)
+                window.scrollTo({ top: 0, behavior: "smooth" })
+            }
+        })(i)
+        cont.appendChild(btn)
+    }
+
+    var btnNext = document.createElement("button")
+    btnNext.className   = "pag-cat-btn"
+    btnNext.textContent = "›"
+    btnNext.disabled    = paginaActual === total
+    btnNext.onclick     = function() {
+        paginaActual++
+        renderProductos(listaActiva)
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+    cont.appendChild(btnNext)
 }
 
 // ── FILTRO DE BÚSQUEDA ────────────────────────────────────────
 function filtrarProductos() {
     var texto = document.getElementById("catBuscar").value.toLowerCase().trim()
-    if (!texto) { renderProductos(todosProductos); return }
-    var filtrados = todosProductos.filter(function(p) {
-        return p.nombre.toLowerCase().includes(texto)
-    })
+    paginaActual = 1   // ← agrega esta línea al inicio
+    var filtrados = texto
+        ? todosProductos.filter(function(p) { return p.nombre.toLowerCase().includes(texto) })
+        : todosProductos
     renderProductos(filtrados)
 }
 

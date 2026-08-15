@@ -297,17 +297,24 @@
         </div>
 
         <!-- PRODUCTOS EN LA TIENDA -->
+
         <div class="tienda-seccion">
             <h2>📦 Productos en tu tienda</h2>
             <p style="font-size:13px;color:#888;margin-bottom:16px">
                 Selecciona cuáles de tus productos quieres mostrar en tu tienda pública.
                 Solo aparecerán los que tengan stock disponible.
             </p>
+
             <div id="productosGrid" class="productos-grid">
                 <div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc">
                     <p style="font-size:28px">📦</p>
                     <p style="margin-top:8px;font-size:13px">Cargando productos...</p>
                 </div>
+            </div>
+
+            <!-- Paginación FUERA de productosGrid -->
+            <div id="productosConfigPag"
+                style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:16px;flex-wrap:wrap">
             </div>
         </div>
 
