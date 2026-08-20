@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda | MyControl</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/agenda.css">
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-texto">Cargando...</p>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/img/logo.png" class="logo" alt="MyControl">
+            <h2>MyControl</h2>
+        </div>
+        <nav class="menu">
+            <a class="menu-item" href="dashboard.html"><span class="icon">🏠</span><span class="text">Inicio</span></a>
+            <a class="menu-item" href="inventario.html"><span class="icon">📦</span><span class="text">Inventario</span></a>
+            <a class="menu-item" href="ventas.html"><span class="icon">💰</span><span class="text">Ventas</span></a>
+            <a class="menu-item" href="compras.html"><span class="icon">🧾</span><span class="text">Compras</span></a>
+            <a class="menu-item" href="proveedores.html"><span class="icon">👥</span><span class="text">Proveedores</span></a>
+            <a class="menu-item" href="clientes.html"><span class="icon">🧑‍🤝‍🧑</span><span class="text">Clientes</span></a>
+            <a class="menu-item" href="pedidos.html"><span class="icon">📬</span><span class="text">Pedidos</span></a>
+            <a class="menu-item active" href="agenda.html"><span class="icon">📅</span><span class="text">Agenda</span></a>
+            <a class="menu-item" href="reportes.html"><span class="icon">📊</span><span class="text">Reportes</span></a>
+            <a class="menu-item" href="tienda-config.html"><span class="icon">🛍️</span><span class="text">Catálogo</span></a>
+            <a class="menu-item" href="configuracion.html"><span class="icon">⚙</span><span class="text">Configuración</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1>📅 Agenda</h1>
+            <div class="topbar-right">
+                <div id="reloj" class="topbar-clock"></div>
+                <button onclick="abrirModalCrear()"
+                    style="padding:8px 16px;background:#FF8500;color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px">
+                    + Nueva actividad
+                </button>
+                <span class="topbar-user">👤 <span id="usuarioNombre"></span></span>
+                
+            </div>
+        </header>
+
+        <!-- BANNER ACTIVIDADES HOY -->
+        <div id="bannerHoy" style="display:none;background:#fff3e0;border:1.5px solid #FFE0B2;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:none;align-items:center;gap:14px;flex-wrap:wrap">
+            <span style="font-size:24px">🔔</span>
+            <div style="flex:1">
+                <p style="font-weight:700;color:#e65100;font-size:14px">Tienes actividades para hoy</p>
+                <p id="bannerHoyTexto" style="font-size:13px;color:#888;margin-top:2px"></p>
+            </div>
+            <button onclick="verHoy()" style="padding:8px 16px;background:#FF8500;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+                Ver actividades
+            </button>
+        </div>
+
+        <!-- STATS -->
+        <section class="agenda-stats">
+            <div class="agenda-stat-card">
+                <div class="agenda-stat-icon" style="background:#fff3e0">📅</div>
+                <div>
+                    <p class="agenda-stat-label">Hoy</p>
+                    <p class="agenda-stat-num" id="statHoy">0</p>
+                </div>
+            </div>
+            <div class="agenda-stat-card">
+                <div class="agenda-stat-icon" style="background:#e8f5e9">📋</div>
+                <div>
+                    <p class="agenda-stat-label">Esta semana</p>
+                    <p class="agenda-stat-num" id="statSemana">0</p>
+                </div>
+            </div>
+            <div class="agenda-stat-card">
+                <div class="agenda-stat-icon" style="background:#fce4ec">⏰</div>
+                <div>
+                    <p class="agenda-stat-label">Pendientes</p>
+                    <p class="agenda-stat-num" id="statPendientes">0</p>
+                </div>
+            </div>
+            <div class="agenda-stat-card">
+                <div class="agenda-stat-icon" style="background:#e3f2fd">✅</div>
+                <div>
+                    <p class="agenda-stat-label">Completadas</p>
+                    <p class="agenda-stat-num" id="statCompletadas">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAYOUT PRINCIPAL -->
+        <div class="agenda-layout">
+
+            <!-- CALENDARIO -->
+            <div class="agenda-calendario-box">
+                <div class="cal-nav">
+                    <button class="cal-nav-btn" onclick="cambiarMes(-1)">‹</button>
+                    <h3 id="calTitulo">Agosto 2026</h3>
+                    <button class="cal-nav-btn" onclick="cambiarMes(1)">›</button>
+                </div>
+                <div class="cal-grid-header">
+                    <span>Dom</span><span>Lun</span><span>Mar</span>
+                    <span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+                </div>
+                <div class="cal-grid" id="calGrid"></div>
+                <div class="cal-leyenda">
+                    <div class="cal-leyenda-item"><span class="cal-punto" style="background:#FF8500"></span>Hoy</div>
+                    <div class="cal-leyenda-item"><span class="cal-punto" style="background:#1976d2"></span>Con actividades</div>
+                    <div class="cal-leyenda-item"><span class="cal-punto" style="background:#27ae60"></span>Seleccionado</div>
+                </div>
+            </div>
+
+            <!-- LISTA DE ACTIVIDADES -->
+            <div class="agenda-lista-box">
+                <div class="agenda-lista-header">
+                    <h3 id="listaTitulo">Todas las actividades</h3>
+                    <div class="agenda-filtros">
+                        <button class="filtro-agenda active" onclick="cambiarFiltro('todas',this)">Todas</button>
+                        <button class="filtro-agenda" onclick="cambiarFiltro('hoy',this)">Hoy</button>
+                        <button class="filtro-agenda" onclick="cambiarFiltro('semana',this)">Semana</button>
+                        <button class="filtro-agenda" onclick="cambiarFiltro('pendientes',this)">Pendientes</button>
+                    </div>
+                </div>
+                <div id="agendaLista"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL NUEVA/EDITAR ACTIVIDAD -->
+<div class="modal" id="modalActividad">
+    <div class="modal-content" style="max-width:520px">
+        <h2 id="modalActTitle">Nueva actividad</h2>
+        <input type="hidden" id="actId">
+
+        <div class="form-group">
+            <label>Título *</label>
+            <input type="text" id="actTitulo" placeholder="¿Qué hay que hacer?">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="actTipo" style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;outline:none;background:white">
+                    <option value="tarea">📌 Tarea</option>
+                    <option value="cliente">👤 Cliente</option>
+                    <option value="inventario">📦 Inventario</option>
+                    <option value="proveedor">🚚 Proveedor</option>
+                    <option value="pedido">🛒 Pedido</option>
+                    <option value="finanzas">💰 Finanzas</option>
+                    <option value="evento">📅 Evento</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Recordatorio</label>
+                <select id="actRecordatorio" style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;outline:none;background:white">
+                    <option value="0">Sin recordatorio</option>
+                    <option value="5">5 minutos antes</option>
+                    <option value="15">15 minutos antes</option>
+                    <option value="30">30 minutos antes</option>
+                    <option value="60">1 hora antes</option>
+                    <option value="1440">1 día antes</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+                <label>Fecha *</label>
+                <input type="date" id="actFecha">
+            </div>
+            <div class="form-group">
+                <label>Hora (opcional)</label>
+                <input type="time" id="actHora">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción</label>
+            <textarea id="actDescripcion" rows="2"
+                placeholder="Detalles adicionales..."
+                style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box"></textarea>
+        </div>
+
+        <!-- Vínculos con módulos -->
+        <div class="form-group">
+            <label>Vincular con cliente (opcional)</label>
+            <select id="actCliente" style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;outline:none;background:white">
+                <option value="">Sin vincular</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Vincular con proveedor (opcional)</label>
+            <select id="actProveedor" style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;outline:none;background:white">
+                <option value="">Sin vincular</option>
+            </select>
+        </div>
+
+        <div id="seccionAsignar" style="display:none">
+            <div class="form-group">
+                <label>Asignar a (opcional)</label>
+                <select id="actAsignado" style="width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:14px;outline:none;background:white">
+                    <option value="">Sin asignar</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="modal-btns">
+            <button onclick="cerrarModal()" style="background:#eee;color:#555">Cancelar</button>
+            <button onclick="guardarActividad()" style="background:#FF8500;color:white">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/session.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/agenda.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>
