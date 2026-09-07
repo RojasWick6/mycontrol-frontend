@@ -90,11 +90,18 @@ function renderPedidos() {
         var botonesHTML = ""
         if (p.estado === "pendiente") {
             botonesHTML =
-                '<button onclick="cambiarEstado(' + p.id + ',\'confirmado\')" style="flex:1;padding:9px;background:#27ae60;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-weight:700">✅ Confirmar</button>' +
-                '<button onclick="cambiarEstado(' + p.id + ',\'cancelado\')" style="padding:9px 14px;background:#fff0f0;color:#e74c3c;border:1px solid #ffcdd2;border-radius:10px;font-size:13px;cursor:pointer">❌ Cancelar</button>'
+                '<button onclick="cambiarEstado(' + p.id + ',\'confirmado\')" ' +
+                'style="flex:1;padding:9px;background:#27ae60;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-weight:700">✅ Confirmar</button>' +
+                '<button onclick="cambiarEstado(' + p.id + ',\'cancelado\')" ' +
+                'style="padding:9px 14px;background:#fff0f0;color:#e74c3c;border:1px solid #ffcdd2;border-radius:10px;font-size:13px;cursor:pointer">❌ Cancelar</button>'
         } else if (p.estado === "confirmado") {
             botonesHTML =
-                '<button onclick="cambiarEstado(' + p.id + ',\'completado\')" style="flex:1;padding:9px;background:#1976d2;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-weight:700">🏁 Marcar completado</button>'
+                '<button onclick="cambiarEstado(' + p.id + ',\'completado\')" ' +
+                'style="flex:1;padding:9px;background:#1976d2;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-weight:700">🏁 Marcar completado</button>'
+        } else if (p.estado === "cancelado") {
+            botonesHTML =
+                '<button onclick="eliminarPedido(' + p.id + ')" ' +
+                'style="flex:1;padding:9px;background:#fff0f0;color:#e74c3c;border:1.5px solid #ffcdd2;border-radius:10px;font-size:13px;cursor:pointer;font-weight:700">🗑️ Eliminar pedido</button>'
         }
 
         // WhatsApp del cliente
@@ -169,5 +176,27 @@ async function cambiarEstado(id, nuevoEstado) {
         ocultarLoading()
     }
 }
+
+
+async function eliminarPedido(id) {
+    if (!confirm("¿Eliminar este pedido cancelado?\n\nSe eliminará permanentemente junto con su detalle.")) return
+    try {
+        mostrarLoading("Eliminando...")
+        const res  = await fetch(API + "/pedidos/" + id, { method: "DELETE" })
+        const data = await res.json()
+        if (data.ok) {
+            await cargarPedidos()
+        } else {
+            alert("Error al eliminar pedido")
+        }
+    } catch (err) {
+        alert("Error de conexión")
+        console.error(err)
+    } finally {
+        ocultarLoading()
+    }
+}
+
+
 
 cargarPedidos()

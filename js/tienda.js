@@ -498,3 +498,32 @@ function mostrarError(msg) {
         '<div class="cat-empty" style="grid-column:1/-1"><p>😕</p><p>' + msg + '</p></div>'
     document.getElementById("catContador").textContent = ""
 }
+
+
+
+async function eliminarCuentaCliente() {
+    if (!clienteSession) return
+    if (!confirm(
+        "¿Eliminar tu cuenta?\n\n" +
+        "Se borrarán todos tus datos y el historial de tus pedidos.\n" +
+        "Esta acción no se puede deshacer."
+    )) return
+
+    try {
+        const res  = await fetch(API_URL + "/clientes-tienda/" + clienteSession.id, {
+            method: "DELETE"
+        })
+        const data = await res.json()
+        if (data.ok) {
+            sessionStorage.removeItem("cliente_" + slug)
+            clienteSession = null
+            actualizarClienteInfo()
+            alert("✅ Tu cuenta fue eliminada correctamente.")
+        } else {
+            alert("Error al eliminar la cuenta. Intenta de nuevo.")
+        }
+    } catch (err) {
+        alert("Error de conexión")
+        console.error(err)
+    }
+}

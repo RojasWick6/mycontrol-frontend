@@ -18,6 +18,8 @@
             <div id="navClienteInfo" style="display:none" class="nav-cliente-info">
                 <span id="navClienteNombre"></span>
                 <button onclick="cerrarSesionCliente()" class="btn-nav-salir">Salir</button>
+                <button onclick="eliminarCuentaCliente()" style="padding:6px 10px;background:#fff0f0;color:#e74c3c;border:1px solid #ffcdd2;border-radius:8px;font-size:12px;cursor:pointer">🗑️ Eliminar cuenta</button>
+
             </div>
             <!-- Botones sin sesión -->
             <div id="navAuthBtns">
@@ -40,6 +42,7 @@
         <div id="navMenuClienteInfo" style="display:none" class="nav-menu-cliente">
             <span id="navMenuNombre"></span>
             <button onclick="cerrarSesionCliente()" class="btn-nav-salir">Cerrar sesión</button>
+            <button onclick="eliminarCuentaCliente()" style="padding:6px 12px;background:#fff0f0;color:#e74c3c;border:1px solid #ffcdd2;border-radius:8px;font-size:12px;cursor:pointer">Eliminar cuenta</button>
         </div>
         <div id="navMenuAuthBtns">
             <button onclick="abrirAuth('login');cerrarMenu()" class="btn-menu-login">Iniciar sesión</button>
